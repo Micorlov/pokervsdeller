@@ -1,0 +1,187 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<script src="./support.js"></script>
+<style>
+  * { box-sizing: border-box; }
+  .screen {
+    width: 100%; min-height: 880px;
+    background-color: #1E6B3C;
+    background-image: radial-gradient(ellipse 140% 90% at 50% 38%, #3DA45F 0%, #2A8A4E 52%, #1E6B3C 82%, #14522C 100%);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    color: #ffffff;
+    display: flex; flex-direction: column;
+    overflow-x: hidden;
+  }
+  .topbar { display: flex; align-items: center; gap: 8px; padding: 8px 16px; }
+  .iconbtn { width: 40px; height: 40px; border-radius: 14px; background: rgba(0,0,0,.26); border: 1px solid rgba(255,255,255,.26); display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700; color: #fff; }
+  .modepill { flex: 1; min-height: 36px; border-radius: 999px; background: rgba(0,0,0,.18); border: 1px solid rgba(255,255,255,.16); display: flex; align-items: center; justify-content: center; padding: 0 16px; }
+  .modelabel { font-size: 14px; font-weight: 800; letter-spacing: -0.2px; }
+  .rightgroup { display: flex; gap: 8px; }
+  .scroll { display: flex; flex-direction: column; gap: 16px; padding: 16px; padding-bottom: 32px; }
+  .dealer-area { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .label { font-size: 10px; font-weight: 700; letter-spacing: 1.8px; text-transform: uppercase; color: rgba(255,255,255,.58); }
+  .dealer-cards { display: flex; flex-direction: row; gap: 6px; justify-content: center; }
+  .meterrow { display: flex; align-items: center; justify-content: center; gap: 16px; }
+  .meter { display: flex; gap: 3px; }
+  .meterseg { width: 26px; height: 6px; border-radius: 3px; background: rgba(0,0,0,.28); }
+  .meterseg.lit { background: #FFC93C; }
+  .rankbadge { padding: 5px 16px; border-radius: 999px; background: rgba(0,0,0,.26); border: 1px solid rgba(255,255,255,.16); font-size: 12px; font-weight: 700; letter-spacing: .4px; color: rgba(255,255,255,.78); }
+  .potsrail { display: flex; justify-content: center; gap: 32px; padding: 4px 0; }
+  .pot-spot { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .valuerow { display: flex; align-items: center; gap: 4px; }
+  .chip { border-radius: 50%; display: flex; align-items: center; justify-content: center; border-top: 1px solid rgba(255,255,255,.5); border-bottom: 2px solid rgba(0,0,0,.45); position: relative; }
+  .chip .ring { position: absolute; top: 2.5px; left: 2.5px; right: 2.5px; bottom: 2.5px; border-radius: 50%; border: 1.5px dashed rgba(255,255,255,.75); }
+  .chip .val { color: #fff; font-weight: 800; font-size: 9.5px; text-shadow: 0 1px 1px rgba(0,0,0,.35); position: relative; }
+  .potval { font-size: 20px; font-weight: 800; letter-spacing: -0.4px; color: #FFC93C; }
+  .botgrid { display: flex; flex-direction: column; gap: 8px; }
+  .botrow { display: flex; flex-direction: row; gap: 8px; }
+  .seat { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 8px 4px; border-radius: 14px; background: rgba(0,0,0,.18); border: 1px solid rgba(255,255,255,.16); }
+  .seat.won { border-color: #FFC93C; }
+  .seatname { font-size: 11px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+  .seatbadge { padding: 2px 7px; border-radius: 999px; border: 1px solid rgba(255,255,255,.16); font-size: 9px; font-weight: 800; letter-spacing: 1px; color: rgba(255,255,255,.78); }
+  .seatnet { font-size: 13px; font-weight: 800; }
+  .seatnet.win { color: #FFC93C; }
+  .seatnet.lose { color: rgba(255,255,255,.58); }
+  .handarea { display: flex; flex-direction: column; align-items: center; gap: 8px; padding-top: 8px; }
+  .flash { align-self: center; padding: 8px 24px; border-radius: 999px; border: 1.5px solid #FFC93C; background: rgba(255,201,60,.16); font-size: 18px; font-weight: 800; letter-spacing: -.3px; color: #FFC93C; }
+  .ctabtn { min-height: 62px; border-radius: 20px; background: linear-gradient(to bottom, #F5872E, #D96B12); border-bottom: 3px solid rgba(90,43,5,.55); display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 700; letter-spacing: -0.2px; color: #fff; }
+
+  .fan { display: flex; flex-direction: row; align-items: center; justify-content: center; }
+  .fancard { position: relative; }
+  .pcard { position: relative; background: linear-gradient(to bottom, #FFFFFF, #EDE8DA); border-top: 1.5px solid rgba(255,255,255,.95); border-bottom: 3px solid rgba(103,94,72,.55); border-left: 1px solid rgba(0,0,0,.14); border-right: 1px solid rgba(0,0,0,.14); box-shadow: 0 6px 14px -4px rgba(0,0,0,.4); overflow: hidden; display: flex; align-items: center; justify-content: center; }
+  .gloss { position: absolute; top: 0; left: 0; right: 0; height: 35%; background: linear-gradient(to bottom, rgba(255,255,255,.32), rgba(255,255,255,0)); }
+  .corner { position: absolute; display: flex; flex-direction: column; align-items: center; line-height: 1; }
+  .corner.flipped { transform: rotate(180deg); }
+  .crank { font-weight: 800; }
+  .csuit { margin-top: -2px; }
+  .center { opacity: .9; }
+  .kicker { position: absolute; top: -7px; right: -3px; width: 20px; height: 20px; border-radius: 10px; background: #FFC93C; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: #243447; z-index: 10; }
+</style>
+</head>
+<body>
+<x-dc>
+  <div class="screen">
+    <div class="topbar">
+      <div class="iconbtn">&#8962;</div>
+      <div class="modepill"><div class="modelabel">Showdown &#183; Ante 10</div></div>
+      <div class="rightgroup"><div class="iconbtn">?</div><div class="iconbtn">&#9776;</div></div>
+    </div>
+    <div class="scroll">
+      <div class="dealer-area">
+        <div class="label">The House</div>
+        <div class="dealer-cards">
+          <div class="pcard" style="width:44.6px;height:63.4px;border-radius:6.5px"><div class="gloss"></div><div class="corner" style="top:2.9px;left:3.6px"><div class="crank" style="font-size:10.8px;color:#22242E">2</div><div class="csuit" style="font-size:8.6px;color:#22242E">&#9824;</div></div><div class="center" style="font-size:21.6px;color:#22242E">&#9824;</div><div class="corner flipped" style="bottom:2.9px;right:3.6px"><div class="crank" style="font-size:10.8px;color:#22242E">2</div><div class="csuit" style="font-size:8.6px;color:#22242E">&#9824;</div></div></div>
+          <div class="pcard" style="width:44.6px;height:63.4px;border-radius:6.5px"><div class="gloss"></div><div class="corner" style="top:2.9px;left:3.6px"><div class="crank" style="font-size:10.8px;color:#C0273A">3</div><div class="csuit" style="font-size:8.6px;color:#C0273A">&#9829;</div></div><div class="center" style="font-size:21.6px;color:#C0273A">&#9829;</div><div class="corner flipped" style="bottom:2.9px;right:3.6px"><div class="crank" style="font-size:10.8px;color:#C0273A">3</div><div class="csuit" style="font-size:8.6px;color:#C0273A">&#9829;</div></div></div>
+          <div class="pcard" style="width:44.6px;height:63.4px;border-radius:6.5px"><div class="gloss"></div><div class="corner" style="top:2.9px;left:3.6px"><div class="crank" style="font-size:10.8px;color:#22242E">Q</div><div class="csuit" style="font-size:8.6px;color:#22242E">&#9824;</div></div><div class="center" style="font-size:21.6px;color:#22242E">&#9824;</div><div class="corner flipped" style="bottom:2.9px;right:3.6px"><div class="crank" style="font-size:10.8px;color:#22242E">Q</div><div class="csuit" style="font-size:8.6px;color:#22242E">&#9824;</div></div></div>
+          <div class="pcard" style="width:44.6px;height:63.4px;border-radius:6.5px"><div class="gloss"></div><div class="corner" style="top:2.9px;left:3.6px"><div class="crank" style="font-size:10.8px;color:#22242E">8</div><div class="csuit" style="font-size:8.6px;color:#22242E">&#9824;</div></div><div class="center" style="font-size:21.6px;color:#22242E">&#9824;</div><div class="corner flipped" style="bottom:2.9px;right:3.6px"><div class="crank" style="font-size:10.8px;color:#22242E">8</div><div class="csuit" style="font-size:8.6px;color:#22242E">&#9824;</div></div></div>
+          <div class="pcard" style="width:44.6px;height:63.4px;border-radius:6.5px"><div class="gloss"></div><div class="corner" style="top:2.9px;left:3.6px"><div class="crank" style="font-size:10.8px;color:#C0273A">7</div><div class="csuit" style="font-size:8.6px;color:#C0273A">&#9830;</div></div><div class="center" style="font-size:21.6px;color:#C0273A">&#9830;</div><div class="corner flipped" style="bottom:2.9px;right:3.6px"><div class="crank" style="font-size:10.8px;color:#C0273A">7</div><div class="csuit" style="font-size:8.6px;color:#C0273A">&#9830;</div></div></div>
+        </div>
+        <div class="meterrow">
+          <div class="label">Threat</div>
+          <div class="meter">
+            <div class="meterseg lit"></div><div class="meterseg"></div><div class="meterseg"></div><div class="meterseg"></div><div class="meterseg"></div>
+          </div>
+        </div>
+        <div class="rankbadge">High Card</div>
+      </div>
+
+      <div class="potsrail">
+        <div class="pot-spot">
+          <div class="label">Table Pot</div>
+          <div class="valuerow">
+            <div class="chip" style="width:28px;height:28px;background:linear-gradient(to bottom,#F7DE96,#CBA345)"><div class="ring"></div><div class="val">0</div></div>
+            <div class="potval">0</div>
+          </div>
+        </div>
+        <div class="pot-spot">
+          <div class="label">Vs The House</div>
+          <div class="valuerow">
+            <div class="chip" style="width:28px;height:28px;background:linear-gradient(to bottom,#3E7BC0,#27508A)"><div class="ring"></div><div class="val">10</div></div>
+            <div class="potval">10</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="botgrid">
+        <div class="botrow">
+          <div class="seat">
+            <div class="seatname">Duke</div>
+            <div class="fan">
+        <div class="fancard" style="margin-left:0px;transform:rotate(-7deg) translateY(2px);z-index:0"><div class="pcard" style="width:NaNpx;height:NaNpx;border-radius:NaNpx"><div class="gloss"></div><div class="corner" style="top:NaNpx;left:NaNpx"><div class="crank" style="font-size:NaNpx;color:#22242E">K</div><div class="csuit" style="font-size:NaNpx;color:#22242E">&#9824;</div></div><div class="center" style="font-size:NaNpx;color:#22242E">&#9824;</div><div class="corner flipped" style="bottom:NaNpx;right:NaNpx"><div class="crank" style="font-size:NaNpx;color:#22242E">K</div><div class="csuit" style="font-size:NaNpx;color:#22242E">&#9824;</div></div></div></div>
+        <div class="fancard" style="margin-left:-4.8px;transform:rotate(-3.5deg) translateY(1px);z-index:1"><div class="pcard" style="width:NaNpx;height:NaNpx;border-radius:NaNpx"><div class="gloss"></div><div class="corner" style="top:NaNpx;left:NaNpx"><div class="crank" style="font-size:NaNpx;color:#22242E">A</div><div class="csuit" style="font-size:NaNpx;color:#22242E">&#9827;</div></div><div class="center" style="font-size:NaNpx;color:#22242E">&#9827;</div><div class="corner flipped" style="bottom:NaNpx;right:NaNpx"><div class="crank" style="font-size:NaNpx;color:#22242E">A</div><div class="csuit" style="font-size:NaNpx;color:#22242E">&#9827;</div></div></div></div>
+        <div class="fancard" style="margin-left:-4.8px;transform:rotate(0deg) translateY(0px);z-index:2"><div class="pcard" style="width:NaNpx;height:NaNpx;border-radius:NaNpx"><div class="gloss"></div><div class="corner" style="top:NaNpx;left:NaNpx"><div class="crank" style="font-size:NaNpx;color:#C0273A">6</div><div class="csuit" style="font-size:NaNpx;color:#C0273A">&#9830;</div></div><div class="center" style="font-size:NaNpx;color:#C0273A">&#9830;</div><div class="corner flipped" style="bottom:NaNpx;right:NaNpx"><div class="crank" style="font-size:NaNpx;color:#C0273A">6</div><div class="csuit" style="font-size:NaNpx;color:#C0273A">&#9830;</div></div></div></div>
+        <div class="fancard" style="margin-left:-4.8px;transform:rotate(3.5deg) translateY(1px);z-index:3"><div class="pcard" style="width:NaNpx;height:NaNpx;border-radius:NaNpx"><div class="gloss"></div><div class="corner" style="top:NaNpx;left:NaNpx"><div class="crank" style="font-size:NaNpx;color:#C0273A">2</div><div class="csuit" style="font-size:NaNpx;color:#C0273A">&#9829;</div></div><div class="center" style="font-size:NaNpx;color:#C0273A">&#9829;</div><div class="corner flipped" style="bottom:NaNpx;right:NaNpx"><div class="crank" style="font-size:NaNpx;color:#C0273A">2</div><div class="csuit" style="font-size:NaNpx;color:#C0273A">&#9829;</div></div></div></div>
+        <div class="fancard" style="margin-left:-4.8px;transform:rotate(7deg) translateY(2px);z-index:4"><div class="pcard" style="width:NaNpx;height:NaNpx;border-radius:NaNpx"><div class="gloss"></div><div class="corner" style="top:NaNpx;left:NaNpx"><div class="crank" style="font-size:NaNpx;color:#22242E">7</div><div class="csuit" style="font-size:NaNpx;color:#22242E">&#9827;</div></div><div class="center" style="font-size:NaNpx;color:#22242E">&#9827;</div><div class="corner flipped" style="bottom:NaNpx;right:NaNpx"><div class="crank" style="font-size:NaNpx;color:#22242E">7</div><div class="csuit" style="font-size:NaNpx;color:#22242E">&#9827;</div></div></div></div>
+            </div>
+            <div class="seatbadge">HOLD</div>
+          </div>
+          <div class="seat won">
+            <div class="seatname">Rosa</div>
+            <div class="fan">
+        <div class="fancard" style="margin-left:0px;transform:rotate(-7deg) translateY(2px);z-index:0"><div class="pcard" style="width:NaNpx;height:NaNpx;border-radius:NaNpx"><div class="gloss"></div><div class="corner" style="top:NaNpx;left:NaNpx"><div class="crank" style="font-size:NaNpx;color:#C0273A">7</div><div class="csuit" style="font-size:NaNpx;color:#C0273A">&#9829;</div></div><div class="center" style="font-size:NaNpx;color:#C0273A">&#9829;</div><div class="corner flipped" style="bottom:NaNpx;right:NaNpx"><div class="crank" style="font-size:NaNpx;color:#C0273A">7</div><div class="csuit" style="font-size:NaNpx;color:#C0273A">&#9829;</div></div></div></div>
+        <div class="fancard" style="margin-left:-4.8px;transform:rotate(-3.5deg) translateY(1px);z-index:1"><div class="pcard" style="width:NaNpx;height:NaNpx;border-radius:NaNpx"><div class="gloss"></div><div class="corner" style="top:NaNpx;left:NaNpx"><div class="crank" style="font-size:NaNpx;color:#22242E">8</div><div class="csuit" style="font-size:NaNpx;color:#22242E">&#9824;</div></div><div class="center" style="font-size:NaNpx;color:#22242E">&#9824;</div><div class="corner flipped" style="bottom:NaNpx;right:NaNpx"><div class="crank" style="font-size:NaNpx;color:#22242E">8</div><div class="csuit" style="font-size:NaNpx;color:#22242E">&#9824;</div></div></div></div>
+        <div class="fancard" style="margin-left:-4.8px;transform:rotate(0deg) translateY(0px);z-index:2"><div class="pcard" style="width:NaNpx;height:NaNpx;border-radius:NaNpx"><div class="gloss"></div><div class="corner" style="top:NaNpx;left:NaNpx"><div class="crank" style="font-size:NaNpx;color:#22242E">J</div><div class="csuit" style="font-size:NaNpx;color:#22242E">&#9827;</div></div><div class="center" style="font-size:NaNpx;color:#22242E">&#9827;</div><div class="corner flipped" style="bottom:NaNpx;right:NaNpx"><div class="crank" style="font-size:NaNpx;color:#22242E">J</div><div class="csuit" style="font-size:NaNpx;color:#22242E">&#9827;</div></div></div></div>
+        <div class="fancard" style="margin-left:-4.8px;transform:rotate(3.5deg) translateY(1px);z-index:3"><div class="pcard" style="width:NaNpx;height:NaNpx;border-radius:NaNpx"><div class="gloss"></div><div class="corner" style="top:NaNpx;left:NaNpx"><div class="crank" style="font-size:NaNpx;color:#22242E">J</div><div class="csuit" style="font-size:NaNpx;color:#22242E">&#9824;</div></div><div class="center" style="font-size:NaNpx;color:#22242E">&#9824;</div><div class="corner flipped" style="bottom:NaNpx;right:NaNpx"><div class="crank" style="font-size:NaNpx;color:#22242E">J</div><div class="csuit" style="font-size:NaNpx;color:#22242E">&#9824;</div></div></div></div>
+        <div class="fancard" style="margin-left:-4.8px;transform:rotate(7deg) translateY(2px);z-index:4"><div class="pcard" style="width:NaNpx;height:NaNpx;border-radius:NaNpx"><div class="gloss"></div><div class="corner" style="top:NaNpx;left:NaNpx"><div class="crank" style="font-size:NaNpx;color:#C0273A">8</div><div class="csuit" style="font-size:NaNpx;color:#C0273A">&#9830;</div></div><div class="center" style="font-size:NaNpx;color:#C0273A">&#9830;</div><div class="corner flipped" style="bottom:NaNpx;right:NaNpx"><div class="crank" style="font-size:NaNpx;color:#C0273A">8</div><div class="csuit" style="font-size:NaNpx;color:#C0273A">&#9830;</div></div></div></div>
+            </div>
+            <div class="seatnet win">+160</div>
+          </div>
+          <div class="seat">
+            <div class="seatname">Sal</div>
+            <div class="fan">
+        <div class="fancard" style="margin-left:0px;transform:rotate(-7deg) translateY(2px);z-index:0"><div class="pcard" style="width:NaNpx;height:NaNpx;border-radius:NaNpx"><div class="gloss"></div><div class="corner" style="top:NaNpx;left:NaNpx"><div class="crank" style="font-size:NaNpx;color:#C0273A">10</div><div class="csuit" style="font-size:NaNpx;color:#C0273A">&#9830;</div></div><div class="center" style="font-size:NaNpx;color:#C0273A">&#9830;</div><div class="corner flipped" style="bottom:NaNpx;right:NaNpx"><div class="crank" style="font-size:NaNpx;color:#C0273A">10</div><div class="csuit" style="font-size:NaNpx;color:#C0273A">&#9830;</div></div></div></div>
+        <div class="fancard" style="margin-left:-4.8px;transform:rotate(-3.5deg) translateY(1px);z-index:1"><div class="pcard" style="width:NaNpx;height:NaNpx;border-radius:NaNpx"><div class="gloss"></div><div class="corner" style="top:NaNpx;left:NaNpx"><div class="crank" style="font-size:NaNpx;color:#22242E">3</div><div class="csuit" style="font-size:NaNpx;color:#22242E">&#9827;</div></div><div class="center" style="font-size:NaNpx;color:#22242E">&#9827;</div><div class="corner flipped" style="bottom:NaNpx;right:NaNpx"><div class="crank" style="font-size:NaNpx;color:#22242E">3</div><div class="csuit" style="font-size:NaNpx;color:#22242E">&#9827;</div></div></div></div>
+        <div class="fancard" style="margin-left:-4.8px;transform:rotate(0deg) translateY(0px);z-index:2"><div class="pcard" style="width:NaNpx;height:NaNpx;border-radius:NaNpx"><div class="gloss"></div><div class="corner" style="top:NaNpx;left:NaNpx"><div class="crank" style="font-size:NaNpx;color:#22242E">K</div><div class="csuit" style="font-size:NaNpx;color:#22242E">&#9824;</div></div><div class="center" style="font-size:NaNpx;color:#22242E">&#9824;</div><div class="corner flipped" style="bottom:NaNpx;right:NaNpx"><div class="crank" style="font-size:NaNpx;color:#22242E">K</div><div class="csuit" style="font-size:NaNpx;color:#22242E">&#9824;</div></div></div></div>
+        <div class="fancard" style="margin-left:-4.8px;transform:rotate(3.5deg) translateY(1px);z-index:3"><div class="pcard" style="width:NaNpx;height:NaNpx;border-radius:NaNpx"><div class="gloss"></div><div class="corner" style="top:NaNpx;left:NaNpx"><div class="crank" style="font-size:NaNpx;color:#22242E">J</div><div class="csuit" style="font-size:NaNpx;color:#22242E">&#9824;</div></div><div class="center" style="font-size:NaNpx;color:#22242E">&#9824;</div><div class="corner flipped" style="bottom:NaNpx;right:NaNpx"><div class="crank" style="font-size:NaNpx;color:#22242E">J</div><div class="csuit" style="font-size:NaNpx;color:#22242E">&#9824;</div></div></div></div>
+        <div class="fancard" style="margin-left:-4.8px;transform:rotate(7deg) translateY(2px);z-index:4"><div class="pcard" style="width:NaNpx;height:NaNpx;border-radius:NaNpx"><div class="gloss"></div><div class="corner" style="top:NaNpx;left:NaNpx"><div class="crank" style="font-size:NaNpx;color:#22242E">4</div><div class="csuit" style="font-size:NaNpx;color:#22242E">&#9827;</div></div><div class="center" style="font-size:NaNpx;color:#22242E">&#9827;</div><div class="corner flipped" style="bottom:NaNpx;right:NaNpx"><div class="crank" style="font-size:NaNpx;color:#22242E">4</div><div class="csuit" style="font-size:NaNpx;color:#22242E">&#9827;</div></div></div></div>
+            </div>
+            <div class="seatnet lose">-10</div>
+          </div>
+        </div>
+        <div class="botrow">
+          <div class="seat">
+            <div class="seatname">Beatrice Rossi</div>
+            <div class="fan">
+        <div class="fancard" style="margin-left:0px;transform:rotate(-7deg) translateY(2px);z-index:0"><div class="pcard" style="width:NaNpx;height:NaNpx;border-radius:NaNpx"><div class="gloss"></div><div class="corner" style="top:NaNpx;left:NaNpx"><div class="crank" style="font-size:NaNpx;color:#22242E">A</div><div class="csuit" style="font-size:NaNpx;color:#22242E">&#9827;</div></div><div class="center" style="font-size:NaNpx;color:#22242E">&#9827;</div><div class="corner flipped" style="bottom:NaNpx;right:NaNpx"><div class="crank" style="font-size:NaNpx;color:#22242E">A</div><div class="csuit" style="font-size:NaNpx;color:#22242E">&#9827;</div></div></div></div>
+        <div class="fancard" style="margin-left:-4.8px;transform:rotate(-3.5deg) translateY(1px);z-index:1"><div class="pcard" style="width:NaNpx;height:NaNpx;border-radius:NaNpx"><div class="gloss"></div><div class="corner" style="top:NaNpx;left:NaNpx"><div class="crank" style="font-size:NaNpx;color:#C0273A">5</div><div class="csuit" style="font-size:NaNpx;color:#C0273A">&#9829;</div></div><div class="center" style="font-size:NaNpx;color:#C0273A">&#9829;</div><div class="corner flipped" style="bottom:NaNpx;right:NaNpx"><div class="crank" style="font-size:NaNpx;color:#C0273A">5</div><div class="csuit" style="font-size:NaNpx;color:#C0273A">&#9829;</div></div></div></div>
+        <div class="fancard" style="margin-left:-4.8px;transform:rotate(0deg) translateY(0px);z-index:2"><div class="pcard" style="width:NaNpx;height:NaNpx;border-radius:NaNpx"><div class="gloss"></div><div class="corner" style="top:NaNpx;left:NaNpx"><div class="crank" style="font-size:NaNpx;color:#C0273A">K</div><div class="csuit" style="font-size:NaNpx;color:#C0273A">&#9830;</div></div><div class="center" style="font-size:NaNpx;color:#C0273A">&#9830;</div><div class="corner flipped" style="bottom:NaNpx;right:NaNpx"><div class="crank" style="font-size:NaNpx;color:#C0273A">K</div><div class="csuit" style="font-size:NaNpx;color:#C0273A">&#9830;</div></div></div></div>
+        <div class="fancard" style="margin-left:-4.8px;transform:rotate(3.5deg) translateY(1px);z-index:3"><div class="pcard" style="width:NaNpx;height:NaNpx;border-radius:NaNpx"><div class="gloss"></div><div class="corner" style="top:NaNpx;left:NaNpx"><div class="crank" style="font-size:NaNpx;color:#22242E">K</div><div class="csuit" style="font-size:NaNpx;color:#22242E">&#9827;</div></div><div class="center" style="font-size:NaNpx;color:#22242E">&#9827;</div><div class="corner flipped" style="bottom:NaNpx;right:NaNpx"><div class="crank" style="font-size:NaNpx;color:#22242E">K</div><div class="csuit" style="font-size:NaNpx;color:#22242E">&#9827;</div></div></div></div>
+        <div class="fancard" style="margin-left:-4.8px;transform:rotate(7deg) translateY(2px);z-index:4"><div class="pcard" style="width:NaNpx;height:NaNpx;border-radius:NaNpx"><div class="gloss"></div><div class="corner" style="top:NaNpx;left:NaNpx"><div class="crank" style="font-size:NaNpx;color:#22242E">5</div><div class="csuit" style="font-size:NaNpx;color:#22242E">&#9824;</div></div><div class="center" style="font-size:NaNpx;color:#22242E">&#9824;</div><div class="corner flipped" style="bottom:NaNpx;right:NaNpx"><div class="crank" style="font-size:NaNpx;color:#22242E">5</div><div class="csuit" style="font-size:NaNpx;color:#22242E">&#9824;</div></div></div></div>
+            </div>
+            <div class="seatnet lose">-20</div>
+          </div>
+          <div class="seat">
+            <div class="seatname">Gus</div>
+            <div class="fan">
+        <div class="fancard" style="margin-left:0px;transform:rotate(-7deg) translateY(2px);z-index:0"><div class="pcard" style="width:NaNpx;height:NaNpx;border-radius:NaNpx"><div class="gloss"></div><div class="corner" style="top:NaNpx;left:NaNpx"><div class="crank" style="font-size:NaNpx;color:#C0273A">4</div><div class="csuit" style="font-size:NaNpx;color:#C0273A">&#9829;</div></div><div class="center" style="font-size:NaNpx;color:#C0273A">&#9829;</div><div class="corner flipped" style="bottom:NaNpx;right:NaNpx"><div class="crank" style="font-size:NaNpx;color:#C0273A">4</div><div class="csuit" style="font-size:NaNpx;color:#C0273A">&#9829;</div></div></div></div>
+        <div class="fancard" style="margin-left:-4.8px;transform:rotate(-3.5deg) translateY(1px);z-index:1"><div class="pcard" style="width:NaNpx;height:NaNpx;border-radius:NaNpx"><div class="gloss"></div><div class="corner" style="top:NaNpx;left:NaNpx"><div class="crank" style="font-size:NaNpx;color:#C0273A">A</div><div class="csuit" style="font-size:NaNpx;color:#C0273A">&#9830;</div></div><div class="center" style="font-size:NaNpx;color:#C0273A">&#9830;</div><div class="corner flipped" style="bottom:NaNpx;right:NaNpx"><div class="crank" style="font-size:NaNpx;color:#C0273A">A</div><div class="csuit" style="font-size:NaNpx;color:#C0273A">&#9830;</div></div></div></div>
+        <div class="fancard" style="margin-left:-4.8px;transform:rotate(0deg) translateY(0px);z-index:2"><div class="pcard" style="width:NaNpx;height:NaNpx;border-radius:NaNpx"><div class="gloss"></div><div class="corner" style="top:NaNpx;left:NaNpx"><div class="crank" style="font-size:NaNpx;color:#22242E">6</div><div class="csuit" style="font-size:NaNpx;color:#22242E">&#9827;</div></div><div class="center" style="font-size:NaNpx;color:#22242E">&#9827;</div><div class="corner flipped" style="bottom:NaNpx;right:NaNpx"><div class="crank" style="font-size:NaNpx;color:#22242E">6</div><div class="csuit" style="font-size:NaNpx;color:#22242E">&#9827;</div></div></div></div>
+        <div class="fancard" style="margin-left:-4.8px;transform:rotate(3.5deg) translateY(1px);z-index:3"><div class="pcard" style="width:NaNpx;height:NaNpx;border-radius:NaNpx"><div class="gloss"></div><div class="corner" style="top:NaNpx;left:NaNpx"><div class="crank" style="font-size:NaNpx;color:#C0273A">10</div><div class="csuit" style="font-size:NaNpx;color:#C0273A">&#9829;</div></div><div class="center" style="font-size:NaNpx;color:#C0273A">&#9829;</div><div class="corner flipped" style="bottom:NaNpx;right:NaNpx"><div class="crank" style="font-size:NaNpx;color:#C0273A">10</div><div class="csuit" style="font-size:NaNpx;color:#C0273A">&#9829;</div></div></div></div>
+        <div class="fancard" style="margin-left:-4.8px;transform:rotate(7deg) translateY(2px);z-index:4"><div class="pcard" style="width:NaNpx;height:NaNpx;border-radius:NaNpx"><div class="gloss"></div><div class="corner" style="top:NaNpx;left:NaNpx"><div class="crank" style="font-size:NaNpx;color:#C0273A">K</div><div class="csuit" style="font-size:NaNpx;color:#C0273A">&#9830;</div></div><div class="center" style="font-size:NaNpx;color:#C0273A">&#9830;</div><div class="corner flipped" style="bottom:NaNpx;right:NaNpx"><div class="crank" style="font-size:NaNpx;color:#C0273A">K</div><div class="csuit" style="font-size:NaNpx;color:#C0273A">&#9830;</div></div></div></div>
+            </div>
+            <div class="seatnet lose">-20</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="handarea">
+        <div class="fan">
+        <div class="fancard" style="margin-left:0px;transform:rotate(-7deg) translateY(6px);z-index:0"><div class="pcard" style="width:NaNpx;height:NaNpx;border-radius:NaNpx"><div class="gloss"></div><div class="corner" style="top:NaNpx;left:NaNpx"><div class="crank" style="font-size:NaNpx;color:#C0273A">Q</div><div class="csuit" style="font-size:NaNpx;color:#C0273A">&#9830;</div></div><div class="center" style="font-size:NaNpx;color:#C0273A">&#9830;</div><div class="corner flipped" style="bottom:NaNpx;right:NaNpx"><div class="crank" style="font-size:NaNpx;color:#C0273A">Q</div><div class="csuit" style="font-size:NaNpx;color:#C0273A">&#9830;</div></div></div></div>
+        <div class="fancard" style="margin-left:-14px;transform:rotate(-3.5deg) translateY(3px);z-index:1"><div class="pcard" style="width:NaNpx;height:NaNpx;border-radius:NaNpx"><div class="gloss"></div><div class="corner" style="top:NaNpx;left:NaNpx"><div class="crank" style="font-size:NaNpx;color:#22242E">9</div><div class="csuit" style="font-size:NaNpx;color:#22242E">&#9824;</div></div><div class="center" style="font-size:NaNpx;color:#22242E">&#9824;</div><div class="corner flipped" style="bottom:NaNpx;right:NaNpx"><div class="crank" style="font-size:NaNpx;color:#22242E">9</div><div class="csuit" style="font-size:NaNpx;color:#22242E">&#9824;</div></div></div></div>
+        <div class="fancard" style="margin-left:-14px;transform:rotate(0deg) translateY(0px);z-index:2"><div class="pcard" style="width:NaNpx;height:NaNpx;border-radius:NaNpx"><div class="gloss"></div><div class="corner" style="top:NaNpx;left:NaNpx"><div class="crank" style="font-size:NaNpx;color:#22242E">9</div><div class="csuit" style="font-size:NaNpx;color:#22242E">&#9827;</div></div><div class="center" style="font-size:NaNpx;color:#22242E">&#9827;</div><div class="corner flipped" style="bottom:NaNpx;right:NaNpx"><div class="crank" style="font-size:NaNpx;color:#22242E">9</div><div class="csuit" style="font-size:NaNpx;color:#22242E">&#9827;</div></div></div></div>
+        <div class="fancard" style="margin-left:-14px;transform:rotate(3.5deg) translateY(3px);z-index:3"><div class="pcard" style="width:NaNpx;height:NaNpx;border-radius:NaNpx"><div class="gloss"></div><div class="corner" style="top:NaNpx;left:NaNpx"><div class="crank" style="font-size:NaNpx;color:#C0273A">5</div><div class="csuit" style="font-size:NaNpx;color:#C0273A">&#9830;</div></div><div class="center" style="font-size:NaNpx;color:#C0273A">&#9830;</div><div class="corner flipped" style="bottom:NaNpx;right:NaNpx"><div class="crank" style="font-size:NaNpx;color:#C0273A">5</div><div class="csuit" style="font-size:NaNpx;color:#C0273A">&#9830;</div></div></div></div>
+        <div class="fancard" style="margin-left:-14px;transform:rotate(7deg) translateY(6px);z-index:4"><div class="pcard" style="width:NaNpx;height:NaNpx;border-radius:NaNpx"><div class="gloss"></div><div class="corner" style="top:NaNpx;left:NaNpx"><div class="crank" style="font-size:NaNpx;color:#22242E">10</div><div class="csuit" style="font-size:NaNpx;color:#22242E">&#9827;</div></div><div class="center" style="font-size:NaNpx;color:#22242E">&#9827;</div><div class="corner flipped" style="bottom:NaNpx;right:NaNpx"><div class="crank" style="font-size:NaNpx;color:#22242E">10</div><div class="csuit" style="font-size:NaNpx;color:#22242E">&#9827;</div></div></div><div class="kicker">&#9733;</div></div>
+        </div>
+        <div class="rankbadge" style="border-color:#FFC93C;background:rgba(255,201,60,.12);color:#FFC93C">Pair</div>
+      </div>
+
+      <div class="flash">+0 &#183; Beat the house</div>
+
+      <div class="ctabtn">Next Hand</div>
+    </div>
+  </div>
+</x-dc>
+</body>
+</html>

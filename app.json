@@ -1,0 +1,29 @@
+{
+  "expo": {
+    "name": "Poker vs Dealer",
+    "slug": "poker-vs-dealer",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.micorlov.pokervsdealer"
+    },
+    "android": {
+      "predictiveBackGestureEnabled": false,
+      "package": "com.micorlov.pokervsdealer",
+      "versionCode": 1
+    },
+    "plugins": [
+      [
+        "expo-audio",
+        {
+          "microphonePermission": false,
+          "recordAudioAndroid": false,
+          "enableBackgroundPlayback": false,
+          "enableBackgroundRecording": false
+        }
+      ]
+    ]
+  }
+}

@@ -1,0 +1,191 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<script src="./support.js"></script>
+<style>
+  * { box-sizing: border-box; }
+  .screen {
+    width: 100%; min-height: 1370px;
+    background-color: #1E6B3C;
+    background-image: radial-gradient(ellipse 140% 90% at 50% 38%, #3DA45F 0%, #2A8A4E 52%, #1E6B3C 82%, #14522C 100%);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    color: #ffffff;
+    display: flex; flex-direction: column;
+    overflow-x: hidden;
+  }
+
+  .topbar { display: flex; align-items: center; gap: 10px; padding: 10px 16px; }
+  .iconbtn { width: 54px; height: 54px; border-radius: 18px; background: rgba(0,0,0,.28); border: 1px solid rgba(255,255,255,.28); display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 700; color: #fff; box-shadow: 0 3px 8px -2px rgba(0,0,0,.35); }
+  .modepill { flex: 1; min-height: 58px; border-radius: 999px; background: rgba(0,0,0,.20); border: 1px solid rgba(255,255,255,.18); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0 12px; }
+  .modekicker { font-size: 13px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: rgba(255,255,255,.66); }
+  .modelabel { font-size: 22px; font-weight: 800; letter-spacing: -0.2px; }
+  .rightgroup { display: flex; gap: 10px; }
+  .label { font-size: 14px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase; color: rgba(255,255,255,.74); }
+  .meter { display: flex; gap: 4px; }
+  .meterseg { width: 30px; height: 11px; border-radius: 6px; background: rgba(0,0,0,.32); }
+  .meterseg.lit { background: #FFC93C; }
+  .rankbadge { padding: 8px 20px; border-radius: 999px; background: rgba(0,0,0,.28); border: 1px solid rgba(255,255,255,.20); font-size: 19px; font-weight: 700; letter-spacing: .2px; color: rgba(255,255,255,.88); }
+  .pot-spot { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .valuerow { display: flex; align-items: center; gap: 8px; }
+  .chip { border-radius: 50%; display: flex; align-items: center; justify-content: center; border-top: 1px solid rgba(255,255,255,.5); border-bottom: 2px solid rgba(0,0,0,.45); position: relative; box-shadow: 0 3px 8px -2px rgba(0,0,0,.35); }
+  .chip .ring { position: absolute; top: 4px; left: 4px; right: 4px; bottom: 4px; border-radius: 50%; border: 2px dashed rgba(255,255,255,.75); }
+  .chip .val { color: #fff; font-weight: 800; font-size: 14px; text-shadow: 0 1px 1px rgba(0,0,0,.35); position: relative; }
+  .potval { font-size: 32px; font-weight: 800; letter-spacing: -0.6px; color: #FFC93C; }
+  .seatname { font-size: 19px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+  .seatbadge { padding: 6px 14px; border-radius: 999px; border: 1px solid rgba(255,255,255,.26); font-size: 14px; font-weight: 800; letter-spacing: .8px; color: rgba(255,255,255,.9); white-space: nowrap; }
+  .seatnet { font-size: 24px; font-weight: 800; white-space: nowrap; }
+  .seatnet.win { color: #FFC93C; }
+  .seatnet.lose { color: rgba(255,255,255,.74); }
+  .flash { align-self: center; padding: 12px 28px; border-radius: 999px; border: 2px solid #FFC93C; background: rgba(255,201,60,.16); font-size: 26px; font-weight: 800; letter-spacing: -.4px; color: #FFC93C; }
+  .actionbar { margin-top: auto; padding: 16px; background: rgba(0,0,0,.32); border-top: 1px solid rgba(255,255,255,.22); }
+  .ctabtn { min-height: 76px; border-radius: 22px; background: linear-gradient(to bottom, #F5872E, #D96B12); border-bottom: 4px solid rgba(90,43,5,.55); display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 700; letter-spacing: -0.2px; color: #fff; box-shadow: 0 10px 24px -8px rgba(217,107,18,.6); }
+  .scroll { display: flex; flex-direction: column; gap: 16px; padding: 16px; }
+  .house { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  .dealer-cards { display: flex; flex-direction: row; gap: 6px; justify-content: center; }
+  .meterrow { display: flex; align-items: center; justify-content: center; gap: 14px; }
+  .potsrail { display: flex; justify-content: center; gap: 34px; }
+  .botlist { display: flex; flex-direction: column; gap: 10px; }
+  .seat { display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; border-radius: 18px; background: rgba(0,0,0,.26); border: 1px solid rgba(255,255,255,.22); }
+  .seat.won { border-color: #FFC93C; border-width: 2px; }
+  .seatheader { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .seatname { font-size: 20px; }
+  .seatnet { font-size: 26px; }
+  .seatbadge { font-size: 15px; padding: 6px 16px; }
+  .fanrow { display: flex; justify-content: center; }
+  .handarea { display: flex; flex-direction: column; align-items: center; gap: 10px; padding-top: 4px; }
+
+  .fan { display: flex; flex-direction: row; align-items: center; justify-content: center; }
+  .fancard { position: relative; }
+  .pcard { position: relative; background: linear-gradient(to bottom, #FFFFFF, #EDE8DA); border-top: 1.5px solid rgba(255,255,255,.95); border-bottom: 3px solid rgba(103,94,72,.55); border-left: 1px solid rgba(0,0,0,.14); border-right: 1px solid rgba(0,0,0,.14); box-shadow: 0 6px 16px -4px rgba(0,0,0,.45); overflow: hidden; }
+  .gloss { position: absolute; top: 0; left: 0; right: 0; height: 35%; background: linear-gradient(to bottom, rgba(255,255,255,.32), rgba(255,255,255,0)); }
+  .jindex { position: absolute; display: flex; flex-direction: column; align-items: center; line-height: .96; }
+  .jrank { font-weight: 800; }
+  .jsuit { margin-top: -0.1em; }
+  .jpip { position: absolute; opacity: .85; line-height: 1; }
+  .kicker { position: absolute; top: -10px; right: -6px; width: 30px; height: 30px; border-radius: 15px; background: #FFC93C; display: flex; align-items: center; justify-content: center; font-size: 17px; font-weight: 800; color: #243447; z-index: 10; }
+</style>
+</head>
+<body>
+<x-dc>
+  <div class="screen">
+    <div class="topbar">
+      <div class="iconbtn">&#8962;</div>
+      <div class="modepill">
+        <div class="modekicker">Showdown</div>
+        <div class="modelabel">Ante 10</div>
+      </div>
+      <div class="rightgroup"><div class="iconbtn">?</div><div class="iconbtn">&#9776;</div></div>
+    </div>
+    <div class="scroll">
+      <div class="house">
+        <div class="label">The House</div>
+        <div class="dealer-cards">
+          <div class="pcard" style="width:58.9px;height:83.6px;border-radius:8.5px"><div class="gloss"></div><div class="jindex" style="top:3px;left:4px;color:#22242E"><div class="jrank" style="font-size:28px">2</div><div class="jsuit" style="font-size:20px">&#9824;</div></div><div class="jpip" style="right:4px;bottom:3px;font-size:28px;color:#22242E">&#9824;</div></div>
+          <div class="pcard" style="width:58.9px;height:83.6px;border-radius:8.5px"><div class="gloss"></div><div class="jindex" style="top:3px;left:4px;color:#C0273A"><div class="jrank" style="font-size:28px">3</div><div class="jsuit" style="font-size:20px">&#9829;</div></div><div class="jpip" style="right:4px;bottom:3px;font-size:28px;color:#C0273A">&#9829;</div></div>
+          <div class="pcard" style="width:58.9px;height:83.6px;border-radius:8.5px"><div class="gloss"></div><div class="jindex" style="top:3px;left:4px;color:#22242E"><div class="jrank" style="font-size:28px">Q</div><div class="jsuit" style="font-size:20px">&#9824;</div></div><div class="jpip" style="right:4px;bottom:3px;font-size:28px;color:#22242E">&#9824;</div></div>
+          <div class="pcard" style="width:58.9px;height:83.6px;border-radius:8.5px"><div class="gloss"></div><div class="jindex" style="top:3px;left:4px;color:#22242E"><div class="jrank" style="font-size:28px">8</div><div class="jsuit" style="font-size:20px">&#9824;</div></div><div class="jpip" style="right:4px;bottom:3px;font-size:28px;color:#22242E">&#9824;</div></div>
+          <div class="pcard" style="width:58.9px;height:83.6px;border-radius:8.5px"><div class="gloss"></div><div class="jindex" style="top:3px;left:4px;color:#C0273A"><div class="jrank" style="font-size:28px">7</div><div class="jsuit" style="font-size:20px">&#9830;</div></div><div class="jpip" style="right:4px;bottom:3px;font-size:28px;color:#C0273A">&#9830;</div></div>
+        </div>
+        <div class="meterrow">
+          <span class="label">Threat</span>
+          <div class="meter">
+            <div class="meterseg lit"></div><div class="meterseg"></div><div class="meterseg"></div><div class="meterseg"></div><div class="meterseg"></div>
+          </div>
+        </div>
+        <div class="rankbadge">High Card</div>
+      </div>
+
+      <div class="potsrail">
+        <div class="pot-spot">
+          <div class="label">Table Pot</div>
+          <div class="valuerow">
+            <div class="chip" style="width:42px;height:42px;background:linear-gradient(to bottom,#F7DE96,#CBA345)"><div class="ring"></div><div class="val">0</div></div>
+            <div class="potval">0</div>
+          </div>
+        </div>
+        <div class="pot-spot">
+          <div class="label">Vs The House</div>
+          <div class="valuerow">
+            <div class="chip" style="width:42px;height:42px;background:linear-gradient(to bottom,#3E7BC0,#27508A)"><div class="ring"></div><div class="val">10</div></div>
+            <div class="potval">10</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="botlist">
+        <div class="seat">
+          <div class="seatheader">
+            <div class="seatname">Duke</div>
+            <div class="seatbadge">HOLD</div>
+          </div>
+          <div class="fanrow"><div class="fan">
+        <div class="fancard" style="margin-left:0px;transform:rotate(-4deg) translateY(6px);z-index:0"><div class="pcard" style="width:58.9px;height:83.6px;border-radius:8.5px"><div class="gloss"></div><div class="jindex" style="top:3px;left:4px;color:#22242E"><div class="jrank" style="font-size:30px">K</div><div class="jsuit" style="font-size:21px">&#9824;</div></div><div class="jpip" style="right:4px;bottom:3px;font-size:28px;color:#22242E">&#9824;</div></div></div>
+        <div class="fancard" style="margin-left:-16.9px;transform:rotate(-2deg) translateY(3px);z-index:1"><div class="pcard" style="width:58.9px;height:83.6px;border-radius:8.5px"><div class="gloss"></div><div class="jindex" style="top:3px;left:4px;color:#22242E"><div class="jrank" style="font-size:30px">A</div><div class="jsuit" style="font-size:21px">&#9827;</div></div><div class="jpip" style="right:4px;bottom:3px;font-size:28px;color:#22242E">&#9827;</div></div></div>
+        <div class="fancard" style="margin-left:-16.9px;transform:rotate(0deg) translateY(0px);z-index:2"><div class="pcard" style="width:58.9px;height:83.6px;border-radius:8.5px"><div class="gloss"></div><div class="jindex" style="top:3px;left:4px;color:#C0273A"><div class="jrank" style="font-size:30px">6</div><div class="jsuit" style="font-size:21px">&#9830;</div></div><div class="jpip" style="right:4px;bottom:3px;font-size:28px;color:#C0273A">&#9830;</div></div></div>
+        <div class="fancard" style="margin-left:-16.9px;transform:rotate(2deg) translateY(3px);z-index:3"><div class="pcard" style="width:58.9px;height:83.6px;border-radius:8.5px"><div class="gloss"></div><div class="jindex" style="top:3px;left:4px;color:#C0273A"><div class="jrank" style="font-size:30px">2</div><div class="jsuit" style="font-size:21px">&#9829;</div></div><div class="jpip" style="right:4px;bottom:3px;font-size:28px;color:#C0273A">&#9829;</div></div></div>
+        <div class="fancard" style="margin-left:-16.9px;transform:rotate(4deg) translateY(6px);z-index:4"><div class="pcard" style="width:58.9px;height:83.6px;border-radius:8.5px"><div class="gloss"></div><div class="jindex" style="top:3px;left:4px;color:#22242E"><div class="jrank" style="font-size:30px">7</div><div class="jsuit" style="font-size:21px">&#9827;</div></div><div class="jpip" style="right:4px;bottom:3px;font-size:28px;color:#22242E">&#9827;</div></div></div>
+          </div></div>
+        </div>
+        <div class="seat won">
+          <div class="seatheader">
+            <div class="seatname">Rosa</div>
+            <div class="seatnet win">+160</div>
+          </div>
+          <div class="fanrow"><div class="fan">
+        <div class="fancard" style="margin-left:0px;transform:rotate(-4deg) translateY(6px);z-index:0"><div class="pcard" style="width:58.9px;height:83.6px;border-radius:8.5px"><div class="gloss"></div><div class="jindex" style="top:3px;left:4px;color:#C0273A"><div class="jrank" style="font-size:30px">7</div><div class="jsuit" style="font-size:21px">&#9829;</div></div><div class="jpip" style="right:4px;bottom:3px;font-size:28px;color:#C0273A">&#9829;</div></div></div>
+        <div class="fancard" style="margin-left:-16.9px;transform:rotate(-2deg) translateY(3px);z-index:1"><div class="pcard" style="width:58.9px;height:83.6px;border-radius:8.5px"><div class="gloss"></div><div class="jindex" style="top:3px;left:4px;color:#22242E"><div class="jrank" style="font-size:30px">8</div><div class="jsuit" style="font-size:21px">&#9824;</div></div><div class="jpip" style="right:4px;bottom:3px;font-size:28px;color:#22242E">&#9824;</div></div></div>
+        <div class="fancard" style="margin-left:-16.9px;transform:rotate(0deg) translateY(0px);z-index:2"><div class="pcard" style="width:58.9px;height:83.6px;border-radius:8.5px"><div class="gloss"></div><div class="jindex" style="top:3px;left:4px;color:#22242E"><div class="jrank" style="font-size:30px">J</div><div class="jsuit" style="font-size:21px">&#9827;</div></div><div class="jpip" style="right:4px;bottom:3px;font-size:28px;color:#22242E">&#9827;</div></div></div>
+        <div class="fancard" style="margin-left:-16.9px;transform:rotate(2deg) translateY(3px);z-index:3"><div class="pcard" style="width:58.9px;height:83.6px;border-radius:8.5px"><div class="gloss"></div><div class="jindex" style="top:3px;left:4px;color:#22242E"><div class="jrank" style="font-size:30px">J</div><div class="jsuit" style="font-size:21px">&#9824;</div></div><div class="jpip" style="right:4px;bottom:3px;font-size:28px;color:#22242E">&#9824;</div></div></div>
+        <div class="fancard" style="margin-left:-16.9px;transform:rotate(4deg) translateY(6px);z-index:4"><div class="pcard" style="width:58.9px;height:83.6px;border-radius:8.5px"><div class="gloss"></div><div class="jindex" style="top:3px;left:4px;color:#C0273A"><div class="jrank" style="font-size:30px">8</div><div class="jsuit" style="font-size:21px">&#9830;</div></div><div class="jpip" style="right:4px;bottom:3px;font-size:28px;color:#C0273A">&#9830;</div></div></div>
+          </div></div>
+        </div>
+        <div class="seat">
+          <div class="seatheader">
+            <div class="seatname">Sal</div>
+            <div class="seatnet lose">-10</div>
+          </div>
+          <div class="fanrow"><div class="fan">
+        <div class="fancard" style="margin-left:0px;transform:rotate(-4deg) translateY(6px);z-index:0"><div class="pcard" style="width:58.9px;height:83.6px;border-radius:8.5px"><div class="gloss"></div><div class="jindex" style="top:3px;left:4px;color:#C0273A"><div class="jrank" style="font-size:30px">10</div><div class="jsuit" style="font-size:21px">&#9830;</div></div><div class="jpip" style="right:4px;bottom:3px;font-size:28px;color:#C0273A">&#9830;</div></div></div>
+        <div class="fancard" style="margin-left:-16.9px;transform:rotate(-2deg) translateY(3px);z-index:1"><div class="pcard" style="width:58.9px;height:83.6px;border-radius:8.5px"><div class="gloss"></div><div class="jindex" style="top:3px;left:4px;color:#22242E"><div class="jrank" style="font-size:30px">3</div><div class="jsuit" style="font-size:21px">&#9827;</div></div><div class="jpip" style="right:4px;bottom:3px;font-size:28px;color:#22242E">&#9827;</div></div></div>
+        <div class="fancard" style="margin-left:-16.9px;transform:rotate(0deg) translateY(0px);z-index:2"><div class="pcard" style="width:58.9px;height:83.6px;border-radius:8.5px"><div class="gloss"></div><div class="jindex" style="top:3px;left:4px;color:#22242E"><div class="jrank" style="font-size:30px">K</div><div class="jsuit" style="font-size:21px">&#9824;</div></div><div class="jpip" style="right:4px;bottom:3px;font-size:28px;color:#22242E">&#9824;</div></div></div>
+        <div class="fancard" style="margin-left:-16.9px;transform:rotate(2deg) translateY(3px);z-index:3"><div class="pcard" style="width:58.9px;height:83.6px;border-radius:8.5px"><div class="gloss"></div><div class="jindex" style="top:3px;left:4px;color:#22242E"><div class="jrank" style="font-size:30px">J</div><div class="jsuit" style="font-size:21px">&#9824;</div></div><div class="jpip" style="right:4px;bottom:3px;font-size:28px;color:#22242E">&#9824;</div></div></div>
+        <div class="fancard" style="margin-left:-16.9px;transform:rotate(4deg) translateY(6px);z-index:4"><div class="pcard" style="width:58.9px;height:83.6px;border-radius:8.5px"><div class="gloss"></div><div class="jindex" style="top:3px;left:4px;color:#22242E"><div class="jrank" style="font-size:30px">4</div><div class="jsuit" style="font-size:21px">&#9827;</div></div><div class="jpip" style="right:4px;bottom:3px;font-size:28px;color:#22242E">&#9827;</div></div></div>
+          </div></div>
+        </div>
+        <div class="seat">
+          <div class="seatheader">
+            <div class="seatname">Beatrice Rossi</div>
+            <div class="seatnet lose">-20</div>
+          </div>
+          <div class="fanrow"><div class="fan">
+        <div class="fancard" style="margin-left:0px;transform:rotate(-4deg) translateY(6px);z-index:0"><div class="pcard" style="width:58.9px;height:83.6px;border-radius:8.5px"><div class="gloss"></div><div class="jindex" style="top:3px;left:4px;color:#22242E"><div class="jrank" style="font-size:30px">A</div><div class="jsuit" style="font-size:21px">&#9827;</div></div><div class="jpip" style="right:4px;bottom:3px;font-size:28px;color:#22242E">&#9827;</div></div></div>
+        <div class="fancard" style="margin-left:-16.9px;transform:rotate(-2deg) translateY(3px);z-index:1"><div class="pcard" style="width:58.9px;height:83.6px;border-radius:8.5px"><div class="gloss"></div><div class="jindex" style="top:3px;left:4px;color:#C0273A"><div class="jrank" style="font-size:30px">5</div><div class="jsuit" style="font-size:21px">&#9829;</div></div><div class="jpip" style="right:4px;bottom:3px;font-size:28px;color:#C0273A">&#9829;</div></div></div>
+        <div class="fancard" style="margin-left:-16.9px;transform:rotate(0deg) translateY(0px);z-index:2"><div class="pcard" style="width:58.9px;height:83.6px;border-radius:8.5px"><div class="gloss"></div><div class="jindex" style="top:3px;left:4px;color:#C0273A"><div class="jrank" style="font-size:30px">K</div><div class="jsuit" style="font-size:21px">&#9830;</div></div><div class="jpip" style="right:4px;bottom:3px;font-size:28px;color:#C0273A">&#9830;</div></div></div>
+        <div class="fancard" style="margin-left:-16.9px;transform:rotate(2deg) translateY(3px);z-index:3"><div class="pcard" style="width:58.9px;height:83.6px;border-radius:8.5px"><div class="gloss"></div><div class="jindex" style="top:3px;left:4px;color:#22242E"><div class="jrank" style="font-size:30px">K</div><div class="jsuit" style="font-size:21px">&#9827;</div></div><div class="jpip" style="right:4px;bottom:3px;font-size:28px;color:#22242E">&#9827;</div></div></div>
+        <div class="fancard" style="margin-left:-16.9px;transform:rotate(4deg) translateY(6px);z-index:4"><div class="pcard" style="width:58.9px;height:83.6px;border-radius:8.5px"><div class="gloss"></div><div class="jindex" style="top:3px;left:4px;color:#22242E"><div class="jrank" style="font-size:30px">5</div><div class="jsuit" style="font-size:21px">&#9824;</div></div><div class="jpip" style="right:4px;bottom:3px;font-size:28px;color:#22242E">&#9824;</div></div></div>
+          </div></div>
+        </div>
+      </div>
+
+      <div class="handarea">
+        <div class="fan">
+        <div class="fancard" style="margin-left:0px;transform:rotate(-7deg) translateY(6.9px);z-index:0"><div class="pcard" style="width:71.3px;height:101.2px;border-radius:10.4px"><div class="gloss"></div><div class="jindex" style="top:4px;left:5px;color:#C0273A"><div class="jrank" style="font-size:34px">Q</div><div class="jsuit" style="font-size:24px">&#9830;</div></div><div class="jpip" style="right:4px;bottom:3px;font-size:34px;color:#C0273A">&#9830;</div></div></div>
+        <div class="fancard" style="margin-left:-16.1px;transform:rotate(-3.5deg) translateY(3.5px);z-index:1"><div class="pcard" style="width:71.3px;height:101.2px;border-radius:10.4px"><div class="gloss"></div><div class="jindex" style="top:4px;left:5px;color:#22242E"><div class="jrank" style="font-size:34px">9</div><div class="jsuit" style="font-size:24px">&#9824;</div></div><div class="jpip" style="right:4px;bottom:3px;font-size:34px;color:#22242E">&#9824;</div></div></div>
+        <div class="fancard" style="margin-left:-16.1px;transform:rotate(0deg) translateY(0px);z-index:2"><div class="pcard" style="width:71.3px;height:101.2px;border-radius:10.4px"><div class="gloss"></div><div class="jindex" style="top:4px;left:5px;color:#22242E"><div class="jrank" style="font-size:34px">9</div><div class="jsuit" style="font-size:24px">&#9827;</div></div><div class="jpip" style="right:4px;bottom:3px;font-size:34px;color:#22242E">&#9827;</div></div></div>
+        <div class="fancard" style="margin-left:-16.1px;transform:rotate(3.5deg) translateY(3.5px);z-index:3"><div class="pcard" style="width:71.3px;height:101.2px;border-radius:10.4px"><div class="gloss"></div><div class="jindex" style="top:4px;left:5px;color:#C0273A"><div class="jrank" style="font-size:34px">5</div><div class="jsuit" style="font-size:24px">&#9830;</div></div><div class="jpip" style="right:4px;bottom:3px;font-size:34px;color:#C0273A">&#9830;</div></div></div>
+        <div class="fancard" style="margin-left:-16.1px;transform:rotate(7deg) translateY(6.9px);z-index:4"><div class="pcard" style="width:71.3px;height:101.2px;border-radius:10.4px"><div class="gloss"></div><div class="jindex" style="top:4px;left:5px;color:#22242E"><div class="jrank" style="font-size:34px">10</div><div class="jsuit" style="font-size:24px">&#9827;</div></div><div class="jpip" style="right:4px;bottom:3px;font-size:34px;color:#22242E">&#9827;</div></div><div class="kicker">&#9733;</div></div>
+        </div>
+        <div class="rankbadge" style="border-color:#FFC93C;background:rgba(255,201,60,.12);color:#FFC93C">Pair</div>
+      </div>
+
+      <div class="flash">+0 &#183; Beat the house</div>
+    </div>
+
+    <div class="actionbar">
+      <div class="ctabtn">Next Hand</div>
+    </div>
+  </div>
+</x-dc>
+</body>
+</html>

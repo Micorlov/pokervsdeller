@@ -1,0 +1,17 @@
+{
+  "artboards": [
+    { "file": "Main.dc.html", "x": 0, "y": 0, "w": 390, "h": 1092, "page": "page-1" },
+    { "file": "Before.dc.html", "x": 0, "y": 0, "w": 390, "h": 884, "page": "page-2" },
+    { "file": "OptionB.dc.html", "x": 490, "y": 0, "w": 390, "h": 1378, "page": "page-2" }
+  ],
+  "annotations": [
+    { "id": "note-main", "x": 0, "y": -128, "w": 390, "page": "page-1", "text": "The Showdown table, large print. Four competitors around a round table, jumbo-index cards, nothing under 14px, and the move pinned to a bar that never scrolls away.\n\nCompetitor card rank: 20px (was 5px)." },
+    { "id": "note-before", "x": 0, "y": -104, "w": 390, "page": "page-2", "text": "Today's build, for comparison. Five competitors in a grid; seat name 11px, badge 9px, card rank 5px." },
+    { "id": "note-optionb", "x": 490, "y": -104, "w": 390, "page": "page-2", "text": "The alternative we did not take: a full-width row per competitor. Rank reaches 30px, but the round table goes away and the scroll gets long." }
+  ],
+  "pages": [
+    { "id": "page-1", "name": "The design" },
+    { "id": "page-2", "name": "Reference" }
+  ],
+  "launch": { "view": "canvas", "page": "page-1" }
+}
