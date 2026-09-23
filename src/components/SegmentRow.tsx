@@ -1,6 +1,6 @@
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { colors, radii, spacing } from '../theme';
+import { colors, MIN_TOUCH_TARGET, radii, spacing } from '../theme';
 
 export interface SegmentOption<T> {
   readonly label: string;
@@ -51,17 +51,22 @@ export const SegmentRow = <T,>({
 
 const styles = StyleSheet.create({
   segmentRow: { gap: spacing.sm },
-  segmentTitle: { fontSize: 15, fontWeight: '800', color: colors.text },
+  segmentTitle: { fontSize: 17, fontWeight: '800', color: colors.text },
   segmentOptions: { flexDirection: 'row', gap: spacing.sm, flexWrap: 'wrap' },
+  // The stake picker is the first thing a player touches, and it was the one
+  // control in the app sitting under both the 44pt platform floor and the
+  // 54pt target the rest of this table is built to.
   segment: {
-    minWidth: 64,
-    paddingVertical: 9,
+    minWidth: 72,
+    minHeight: MIN_TOUCH_TARGET,
+    paddingVertical: spacing.sm,
     paddingHorizontal: spacing.md,
     borderRadius: radii.pill,
     backgroundColor: colors.surfaceRaised,
     borderWidth: 1,
     borderColor: colors.border,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   segmentSelected: {
     backgroundColor: colors.orangeDeep,
@@ -78,6 +83,6 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255, 255, 255, 0.4)',
   },
   segmentPressed: { opacity: 0.85 },
-  segmentLabel: { fontSize: 13.5, fontWeight: '700', color: colors.textMuted },
+  segmentLabel: { fontSize: 19, fontWeight: '700', color: colors.textMuted },
   segmentLabelSelected: { color: colors.text },
 });

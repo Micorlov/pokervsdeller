@@ -27,6 +27,9 @@ interface ActionBarProps {
  * the pressure toggle folded in when the round offers it. The bail button
  * states its refund outright — leaving a hand is a priced decision here, not
  * a defeat.
+ *
+ * Every label names the direction the chips travel. A bare "+25" on bail and
+ * "+25" on pressure would mean opposite things on two buttons a thumb apart.
  */
 export const ActionBar: React.FC<ActionBarProps> = ({
   ante,
@@ -57,7 +60,11 @@ export const ActionBar: React.FC<ActionBarProps> = ({
     <View style={styles.bar}>
       {pressureAvailable ? (
         <PubButton
-          label={pressureArmed ? `Pressure armed — win pays 3:1` : `Pressure the house +${ante}`}
+          label={
+            pressureArmed
+              ? 'Pressure armed · wins pay 3:1'
+              : `Pressure the house · pay ${ante}, wins pay 3:1`
+          }
           onPress={() => onTogglePressure(!pressureArmed)}
           variant="secondary"
           cue={null}
@@ -67,11 +74,16 @@ export const ActionBar: React.FC<ActionBarProps> = ({
           this type size three labels never fit across one row. */}
       <View style={styles.row}>
         <View style={styles.button}>
-          <PubButton label={`Bail +${bailRefund}`} onPress={onBail} variant="danger" cue={null} />
+          <PubButton
+            label={`Bail · get ${bailRefund} back`}
+            onPress={onBail}
+            variant="danger"
+            cue={null}
+          />
         </View>
         <View style={styles.button}>
           <PubButton
-            label={`Forge −${ante} (${forgesLeft})`}
+            label={`Forge · pay ${ante} · ${forgesLeft} left`}
             onPress={onBeginForge}
             variant="secondary"
             disabled={!canForge}

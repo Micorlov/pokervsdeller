@@ -124,10 +124,11 @@ export const PlayingCard: React.FC<PlayingCardProps> = ({
           style={[styles.gloss, { borderTopLeftRadius: radius, borderTopRightRadius: radius }]}
         />
         <View style={[styles.index, { top: height * 0.035, left: width * 0.07 }]}>
-          <Text style={[styles.indexRank, { color: ink, fontSize: rankFontSize }]}>
+          <Text maxFontSizeMultiplier={1} style={[styles.indexRank, { color: ink, fontSize: rankFontSize }]}>
             {rankLabel(card.rank)}
           </Text>
           <Text
+            maxFontSizeMultiplier={1}
             style={[styles.indexSuit, { color: ink, fontSize: suitFontSize, marginTop: -suitFontSize * 0.16 }]}
           >
             {glyph}
@@ -135,6 +136,7 @@ export const PlayingCard: React.FC<PlayingCardProps> = ({
         </View>
         {pipFontSize > 0 ? (
           <Text
+            maxFontSizeMultiplier={1}
             style={[
               styles.pip,
               { color: ink, fontSize: pipFontSize, right: width * 0.06, bottom: height * 0.03 },
@@ -143,7 +145,7 @@ export const PlayingCard: React.FC<PlayingCardProps> = ({
             {glyph}
           </Text>
         ) : null}
-        {dimmed ? <Text style={[styles.foldedMark, { color: ink, fontSize: 13 * scale }]}>✕</Text> : null}
+        {dimmed ? <Text maxFontSizeMultiplier={1} style={[styles.foldedMark, { color: ink, fontSize: 13 * scale }]}>✕</Text> : null}
       </Animated.View>
       <Animated.View style={[styles.side, styles.card, styles.back, backGradient, size, { transform: [{ scaleX: backScaleX }] }]}>
         <View

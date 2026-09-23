@@ -43,3 +43,9 @@ coverage/
 /ios
 /android
 dist-android/
+
+# signing
+credentials/
+
+# python bytecode
+__pycache__/

@@ -13,6 +13,8 @@ interface CardFanProps {
   readonly animateIn?: boolean;
   /** Which card wears the kicker star, if one has been picked. */
   readonly kickerIndex?: number | null;
+  /** A card just traded in, ringed briefly so the swap is visible. */
+  readonly freshIndex?: number | null;
   /**
    * When set, cards become tappable: 'kicker' to pick the kicker, 'discard'
    * to pick a forge trade-in (the kicker card is off-limits and dims).
@@ -35,6 +37,8 @@ const FAN_STEP_DEG = 3.5;
 /** The outer cards drop slightly, so the row reads as held, not laid flat. */
 const FAN_DROP_PX = 3;
 const OVERLAP_PX = 14;
+/** How far the marked card rises out of the fan, in points. */
+const KICKER_LIFT_PX = 6;
 
 /**
  * Five cards in a shallow fan, entering one after another the way a dealt
@@ -52,6 +56,7 @@ export const CardFan: React.FC<CardFanProps> = ({
   scale = 1,
   animateIn = false,
   kickerIndex = null,
+  freshIndex = null,
   selectableMode = null,
   onSelectCard,
   stripWidth,
@@ -69,6 +74,7 @@ export const CardFan: React.FC<CardFanProps> = ({
       {cards.map((card, index) => {
         const offset = index - middle;
         const isKicker = index === kickerIndex;
+        const isFresh = index === freshIndex;
         const isLockedOut = selectableMode === 'discard' && isKicker;
         const isTappable = selectableMode !== null && !isLockedOut;
 
@@ -91,9 +97,16 @@ export const CardFan: React.FC<CardFanProps> = ({
               marginLeft: index === 0 ? 0 : -overlap,
               transform: [
                 { rotate: `${offset * fanStepDeg}deg` },
-                { translateY: Math.abs(offset) * FAN_DROP_PX * scale },
+                {
+                  translateY:
+                    Math.abs(offset) * FAN_DROP_PX * scale - (isKicker ? KICKER_LIFT_PX : 0),
+                },
               ],
-              zIndex: index,
+              // The star sits on the top-right corner — exactly where the next
+              // card overlaps — so the marked card has to ride above the rest of
+              // the fan or its badge is covered on every card but the last. A
+              // card fresh off the stock comes forward for the same reason.
+              zIndex: isFresh ? cards.length + 1 : isKicker ? cards.length : index,
             }}
           >
             {isTappable ? (
@@ -111,6 +124,7 @@ export const CardFan: React.FC<CardFanProps> = ({
             ) : (
               face
             )}
+            {isFresh ? <View style={styles.freshRing} pointerEvents="none" /> : null}
             {isKicker ? (
               <View style={styles.kickerStar} pointerEvents="none">
                 <Text style={styles.kickerStarText}>★</Text>
@@ -128,6 +142,18 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  // A traded card is replaced in its own slot, so the only thing that changes
+  // is the face. This ring is what tells the player the trade actually landed.
+  freshRing: {
+    position: 'absolute',
+    top: -3,
+    left: -3,
+    right: -3,
+    bottom: -3,
+    borderRadius: 12,
+    borderWidth: 3,
+    borderColor: colors.green,
   },
   kickerStar: {
     position: 'absolute',

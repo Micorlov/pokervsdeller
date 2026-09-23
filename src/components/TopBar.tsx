@@ -1,14 +1,14 @@
 import React from 'react';
 import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
-import { colors, MIN_TOUCH_TARGET, radii, shadows, spacing } from '../theme';
+import { colors, MIN_TOUCH_TARGET, radii, shadows, spacing, tabularNums } from '../theme';
 import { useFeedback } from '../feedback/FeedbackProvider';
 import { usePressScale } from '../motion/hooks';
 
 interface TopBarProps {
-  /** The game, set small above the stake — e.g. "Showdown". */
-  readonly modeTitle: string;
-  /** The stake, which is the part worth reading — e.g. "Ante 10". */
-  readonly modeValue: string;
+  /** The stake, set small above the stack — e.g. "Ante 10". */
+  readonly stake: string;
+  /** The player's own chips, live: every other seat shows theirs on the felt. */
+  readonly bankroll: number;
   readonly onHome: () => void;
   readonly onMenu: () => void;
   readonly onRules: () => void;
@@ -44,26 +44,23 @@ const IconButton: React.FC<IconButtonProps> = ({ glyph, label, onPress }) => {
 };
 
 /**
- * The table screen's chrome: home on the left, the stakes pill in the centre,
+ * The table screen's chrome: home on the left, the stack pill in the centre,
  * rules and menu on the right — the casual-game header layout.
  *
  * The pill stacks its two lines rather than running them together: at this
- * type size "Showdown · Ante 10" wraps beside three buttons, and the stake is
- * the half a player actually comes back to check.
+ * type size they would wrap beside three buttons. The wordmark gave the big
+ * line up to the player's chip count — a player mid-hand knows what they
+ * opened, and every bot on the felt shows a stack while they did not.
  */
-export const TopBar: React.FC<TopBarProps> = ({ modeTitle, modeValue, onHome, onMenu, onRules }) => (
+export const TopBar: React.FC<TopBarProps> = ({ stake, bankroll, onHome, onMenu, onRules }) => (
   <View style={styles.bar}>
     <IconButton glyph="⌂" label="Home" onPress={onHome} />
-    <View
-      style={styles.modePill}
-      accessible
-      accessibilityLabel={`${modeTitle}, ${modeValue}`}
-    >
-      <Text style={styles.modeTitle} numberOfLines={1}>
-        {modeTitle}
+    <View style={styles.modePill} accessible accessibilityLabel={`${stake}, ${bankroll} chips`}>
+      <Text style={styles.modeTitle} numberOfLines={1} maxFontSizeMultiplier={1.2}>
+        {stake}
       </Text>
-      <Text style={styles.modeValue} numberOfLines={1}>
-        {modeValue}
+      <Text style={[styles.modeValue, tabularNums]} numberOfLines={1} maxFontSizeMultiplier={1.2}>
+        {bankroll}
       </Text>
     </View>
     <View style={styles.rightGroup}>
@@ -112,7 +109,7 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     color: colors.textMuted,
   },
-  modeValue: { fontSize: 22, fontWeight: '800', letterSpacing: -0.2, color: colors.text },
+  modeValue: { fontSize: 22, fontWeight: '800', letterSpacing: -0.2, color: colors.gold },
   rightGroup: { flexDirection: 'row', gap: spacing.sm },
   pressed: { opacity: 0.85 },
 });

@@ -5,12 +5,12 @@ import { FORGE_LIMIT, PRESSURE_ROUND, ShowdownMove } from './showdownPayouts';
 import { handStrengthScore, partialThreat } from './threat';
 
 /**
- * The five regulars at the table.
+ * The two regulars at the table.
  *
  * Each one weighs its hand against the dealer's visible climb and then
  * deviates by `tightness`: a rock bails early and pressures only certainties,
  * a gambler rides bad hands and doubles light. The deviation is what makes
- * the seats readable as people rather than five copies of the same solver.
+ * the seats readable as people rather than copies of the same solver.
  */
 
 export interface BotAvatar {
@@ -30,14 +30,11 @@ export interface BotPersona {
 }
 
 /**
- * Four regulars, spread tight to loose. The table seats one of each, so the
- * spread matters more than the headcount: dropping a bot from the middle
- * keeps both ends of the range intact.
+ * Two regulars, spread tight to loose. The table seats one of each, so the
+ * spread matters more than the headcount.
  */
 export const BOT_PERSONAS: readonly BotPersona[] = [
   { id: 'duke', name: 'Duke', avatar: { kind: 'emoji', value: '🎩' }, tightness: 0.88, style: 'Waits all night for a pair.' },
-  { id: 'rosa', name: 'Rosa', avatar: { kind: 'emoji', value: '🌹' }, tightness: 0.62, style: 'Plays the book, mostly.' },
-  { id: 'bea', name: 'Beatrice Rossi', avatar: { kind: 'emoji', value: '🇮🇹' }, tightness: 0.28, style: 'Any ace is a good ace.' },
   { id: 'gus', name: 'Gus', avatar: { kind: 'emoji', value: '🎲' }, tightness: 0.12, style: 'Here for the action.' },
 ];
 

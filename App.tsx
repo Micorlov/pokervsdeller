@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Alert, StyleSheet, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { PubScreen } from './src/components/PubScreen';
@@ -47,9 +47,30 @@ const AppContent: React.FC<AppContentProps> = ({ settings, onUpdateSettings }) =
     setScreen('table');
   };
 
-  const leaveTable = (): void => {
+  const quitToHome = (): void => {
     table.leaveTable();
     setScreen('home');
+  };
+
+  /**
+   * Nothing is banked until a hand settles, so walking out costs no chips —
+   * but it does throw away a hand in progress, and the home button sits a
+   * thumb away from the rules button. Worth one question; not worth a
+   * warning that implies a loss that does not happen.
+   */
+  const leaveTable = (): void => {
+    if (!table.round || table.round.phase === 'settled') {
+      quitToHome();
+      return;
+    }
+    Alert.alert(
+      'Leave this hand?',
+      'This hand will not be played out. Nothing has been settled, so your chips are untouched.',
+      [
+        { text: 'Stay', style: 'cancel' },
+        { text: 'Leave', style: 'destructive', onPress: quitToHome },
+      ],
+    );
   };
 
   const resetBankroll = (): void => {

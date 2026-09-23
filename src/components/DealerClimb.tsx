@@ -86,7 +86,7 @@ export const DealerClimb: React.FC<DealerClimbProps> = ({ cards, rank, kickerStr
 };
 
 const styles = StyleSheet.create({
-  area: { alignItems: 'center', gap: spacing.sm },
+  area: { alignItems: 'center', gap: spacing.xs },
   label: { ...typography.label },
   cards: { flexDirection: 'row', gap: 6, justifyContent: 'center' },
   emptySlot: {

@@ -3,6 +3,7 @@
     "name": "Poker vs Dealer",
     "slug": "poker-vs-dealer",
     "version": "1.0.0",
+    "icon": "./assets/icon.png",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "ios": {
@@ -12,7 +13,13 @@
     "android": {
       "predictiveBackGestureEnabled": false,
       "package": "com.micorlov.pokervsdealer",
-      "versionCode": 1
+      "versionCode": 2,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png",
+        "backgroundColor": "#1E6B3C"
+      }
     },
     "plugins": [
       [
@@ -24,6 +31,9 @@
           "enableBackgroundRecording": false
         }
       ]
-    ]
+    ],
+    "web": {
+      "favicon": "./assets/favicon.png"
+    }
   }
 }

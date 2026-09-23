@@ -45,7 +45,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         <Reveal index={0}>
           <Text style={styles.title}>Showdown</Text>
           <Text style={styles.subtitle}>
-            Dealer vs Five — beat the house&apos;s climb, and the whole table
+            Dealer vs Three — beat the house&apos;s climb, and the whole table
           </Text>
         </Reveal>
 

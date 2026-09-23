@@ -2,7 +2,6 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useCountUp } from '../motion/hooks';
 import { colors, spacing, tabularNums, typography } from '../theme';
-import { PokerChip } from './PokerChip';
 
 interface PotsRailProps {
   /** Everything the table is fighting over, forge fees included. */
@@ -18,6 +17,11 @@ interface PotsRailProps {
  * seat's own stake against the house on the right. Two pots is the whole
  * game, so they sit between the dealer and the table where both fights are
  * visible at once.
+ *
+ * This rail is pinned out of the scrolling felt — in the pressure round the
+ * player is asked to bet on exactly these two numbers — so it is laid out on
+ * one line and carries no chip graphic. The chip only ever restated the
+ * number printed beside it, and pinned chrome has to earn its height.
  */
 export const PotsRail: React.FC<PotsRailProps> = ({ tablePot, dealerStake, pressured }) => {
   const displayPot = useCountUp(tablePot);
@@ -25,11 +29,12 @@ export const PotsRail: React.FC<PotsRailProps> = ({ tablePot, dealerStake, press
   return (
     <View style={styles.rail}>
       <View style={styles.spot} accessible accessibilityLabel={`Table pot ${tablePot} chips`}>
-        <Text style={styles.label}>Table Pot</Text>
-        <View style={styles.valueRow}>
-          <PokerChip value={tablePot} size={42} />
-          <Text style={[styles.value, tabularNums]}>{displayPot}</Text>
-        </View>
+        <Text style={styles.label} maxFontSizeMultiplier={1.3}>
+          Table Pot
+        </Text>
+        <Text style={[styles.value, tabularNums]} maxFontSizeMultiplier={1.3}>
+          {displayPot}
+        </Text>
       </View>
 
       <View
@@ -37,11 +42,18 @@ export const PotsRail: React.FC<PotsRailProps> = ({ tablePot, dealerStake, press
         accessible
         accessibilityLabel={`Your stake against the house: ${dealerStake} chips${pressured ? ', pressured, pays three to one' : ''}`}
       >
-        <Text style={styles.label}>Vs the House</Text>
+        <Text style={styles.label} maxFontSizeMultiplier={1.3}>
+          Vs the House
+        </Text>
         <View style={styles.valueRow}>
-          <PokerChip value={dealerStake} size={42} />
-          <Text style={[styles.value, tabularNums]}>{dealerStake}</Text>
-          {pressured ? <Text style={styles.pressurePip}>3:1</Text> : null}
+          <Text style={[styles.value, tabularNums]} maxFontSizeMultiplier={1.3}>
+            {dealerStake}
+          </Text>
+          {pressured ? (
+            <Text style={styles.pressurePip} maxFontSizeMultiplier={1.3}>
+              3:1
+            </Text>
+          ) : null}
         </View>
       </View>
     </View>
@@ -49,16 +61,22 @@ export const PotsRail: React.FC<PotsRailProps> = ({ tablePot, dealerStake, press
 };
 
 const styles = StyleSheet.create({
+  // Label over figure, two columns. Side by side on one line they fit at the
+  // sizes this table is drawn for but not at the worst case — a three-figure
+  // pot, a doubled stake and the 3:1 pip, with the system text turned up —
+  // and a number the player is about to bet on must never run off the edge.
+  // Stacked, the rail cannot overflow at any width, and it still costs far
+  // less height than the chip graphics it replaced.
   rail: {
     flexDirection: 'row',
     justifyContent: 'center',
+    alignItems: 'flex-start',
     gap: spacing.xl,
-    paddingVertical: spacing.xs,
   },
-  spot: { alignItems: 'center', gap: 6 },
+  spot: { alignItems: 'center', gap: 2 },
+  valueRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
   label: { ...typography.label },
-  valueRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  value: { fontSize: 32, fontWeight: '800', letterSpacing: -0.6, color: colors.gold },
+  value: { fontSize: 26, fontWeight: '800', letterSpacing: -0.6, color: colors.gold },
   pressurePip: {
     fontSize: 14,
     fontWeight: '800',

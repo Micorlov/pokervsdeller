@@ -22,9 +22,15 @@ import {
 } from '../domain/showdown';
 import { PRESSURE_ROUND, ShowdownMove } from '../domain/showdownPayouts';
 import { outcomeOf, recordHandResult } from '../domain/stats';
+import { streakBonusFor } from '../domain/streakBonus';
 import { useFeedback } from '../feedback/FeedbackProvider';
 import { useBankroll } from './bankrollStore';
 import { useStats } from './statsStore';
+
+interface StreakBonus {
+  readonly streak: number;
+  readonly amount: number;
+}
 
 /** Cards land one per beat; five beats reads as a deal, not a dump. */
 const DEAL_BEAT_MS = 110;
@@ -39,6 +45,12 @@ const REVEAL_BEAT_MS = 650;
 /** The showdown sits face-up for a breath before chips move. */
 const SETTLE_BEAT_MS = 700;
 const BUST_CUE_DELAY_MS = 800;
+/**
+ * How long a freshly forged card stays ringed. Generous on purpose: this table
+ * is played by people in their sixties and up, and a mark that has faded before
+ * the eye reaches it may as well not have been drawn.
+ */
+const FRESH_CARD_MS = 1800;
 
 /**
  * Owns the table and the clock. The domain settles a hand instantly; this
@@ -57,12 +69,20 @@ export const useShowdownTable = () => {
   const [kickerLocked, setKickerLocked] = useState(false);
   /** True while the human is picking which card a forge trades away. */
   const [forgeArming, setForgeArming] = useState(false);
+  /**
+   * The slot a forge just refilled, held long enough to be noticed. A traded
+   * card is replaced in place, so without this the hand simply has a different
+   * card in it and nothing tells the player the trade landed.
+   */
+  const [freshCardIndex, setFreshCardIndex] = useState<number | null>(null);
   /** The pressure toggle, folded into the human's next move in round three. */
   const [pressureArmed, setPressureArmed] = useState(false);
   /** Flips the table's hidden hands in the UI on the reveal beat, not at settle. */
   const [revealed, setRevealed] = useState(false);
   /** Badges the hand that just settled newly earned, cleared on dismiss or the next deal. */
   const [newAchievements, setNewAchievements] = useState<readonly Achievement[]>([]);
+  /** The win-streak bonus the hand that just settled paid, if any. */
+  const [streakBonus, setStreakBonus] = useState<StreakBonus | null>(null);
 
   const roundRef = useRef<ShowdownRoundState | null>(null);
   const rngRef = useRef<Rng>(mulberry32(randomSeed()));
@@ -161,9 +181,11 @@ export const useShowdownTable = () => {
       setThinkingSeat(null);
       setKickerLocked(false);
       setForgeArming(false);
+      setFreshCardIndex(null);
       setPressureArmed(false);
       setRevealed(false);
       setNewAchievements([]);
+      setStreakBonus(null);
       rngRef.current = mulberry32(randomSeed());
 
       const dealing = startShowdownRound(table, rngRef.current, ante);
@@ -261,8 +283,10 @@ export const useShowdownTable = () => {
       if (discardIndex === seat.kickerIndex) return;
       if (seat.forgesUsed >= 2 || seat.stack < current.ante * (pressure ? 2 : 1)) return;
       submitMove({ kind: 'forge', forgeDiscardIndex: discardIndex, pressure });
+      setFreshCardIndex(discardIndex);
+      schedule(FRESH_CARD_MS, () => setFreshCardIndex(null));
     },
-    [pressureNow, submitMove],
+    [pressureNow, schedule, submitMove],
   );
 
   const bail = useCallback(() => {
@@ -292,6 +316,8 @@ export const useShowdownTable = () => {
       const settlement = seat.settlement;
       const nextBankroll = seat.stack;
       saveBankroll(nextBankroll);
+      /** The bankroll the player actually ends the hand on, streak bonus included. */
+      let effectiveBankroll = nextBankroll;
       if (settlement) {
         const entry = {
           category: evaluateHand(seat.cards).category,
@@ -311,12 +337,33 @@ export const useShowdownTable = () => {
         updateStats(() => nextStats);
         if (unlocked.length > 0) setNewAchievements(unlocked);
 
+        // Exact-match, not a threshold: currentStreak only ever changes by
+        // +1 on a win, so gating on entry.net > 0 means this streak value is
+        // freshly reached — a later push holding the same count is excluded
+        // by the same guard, so this can't double-pay.
+        const bonus = entry.net > 0 ? streakBonusFor(nextStats.currentStreak, settled.ante) : 0;
+        if (bonus > 0) {
+          const finalBankroll = nextBankroll + bonus;
+          effectiveBankroll = finalBankroll;
+          setStreakBonus({ streak: nextStats.currentStreak, amount: bonus });
+          setRound({
+            ...settled,
+            seats: settled.seats.map((s, index) =>
+              index === HUMAN_SEAT ? { ...s, stack: finalBankroll } : s,
+            ),
+          });
+          saveBankroll(finalBankroll);
+        }
+
         if (settlement.sweep || settlement.kickerStrike) play('winBig');
         else if (settlement.net > 0) play('win');
         else if (settlement.net < 0) play('lose');
         else play('push');
       }
-      if (isBust(nextBankroll, settled.ante)) {
+      // Against the post-bonus figure: a thin win that lands a streak can clear
+      // the bust line only once the bonus is paid, and cueing "broke" there
+      // would contradict the stack the player is looking at.
+      if (isBust(effectiveBankroll, settled.ante)) {
         schedule(BUST_CUE_DELAY_MS, () => play('bust'));
       }
     });
@@ -385,24 +432,29 @@ export const useShowdownTable = () => {
     setThinkingSeat(null);
     setKickerLocked(false);
     setForgeArming(false);
+    setFreshCardIndex(null);
     setPressureArmed(false);
     setRevealed(false);
     setNewAchievements([]);
+    setStreakBonus(null);
     settleScheduledRef.current = false;
     drawScheduledForRef.current = 0;
     setRound(null);
   }, [clearTimers, setRound]);
 
   const dismissAchievements = useCallback(() => setNewAchievements([]), []);
+  const dismissStreakBonus = useCallback(() => setStreakBonus(null), []);
 
   return {
     round,
     thinkingSeat,
     kickerLocked,
     forgeArming,
+    freshCardIndex,
     pressureArmed,
     revealed,
     newAchievements,
+    streakBonus,
     /** During a hand the seat's stack IS the bankroll — no second ledger. */
     bankroll: round ? humanSeat(round).stack : bankroll,
     bankrollLoaded,
@@ -420,6 +472,7 @@ export const useShowdownTable = () => {
     reUpNow,
     claimDailyBonus,
     dismissAchievements,
+    dismissStreakBonus,
     leaveTable,
     resetBankroll,
   };

@@ -97,14 +97,14 @@ const styles = StyleSheet.create({
   },
   danger: {
     minHeight: 64,
-    backgroundColor: colors.redDim,
+    backgroundColor: colors.redSurface,
     borderWidth: 1,
-    borderColor: 'transparent',
+    borderColor: colors.redSurfaceEdge,
   },
   label: { ...typography.button },
   primaryLabel: { color: colors.text },
   secondaryLabel: { fontSize: 20, fontWeight: '700', letterSpacing: 0, color: colors.text },
-  dangerLabel: { fontSize: 20, fontWeight: '700', letterSpacing: 0, color: colors.red },
+  dangerLabel: { fontSize: 20, fontWeight: '700', letterSpacing: 0, color: colors.redInk },
   // Disabled drops to plain glass: no glow, no action colour, nothing to press.
   disabled: { backgroundColor: colors.border, borderColor: 'transparent', boxShadow: [] },
   disabledLabel: { color: colors.textFaint },

@@ -3,17 +3,33 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { PubButton } from '../components/PubButton';
 import { RE_UP_AMOUNT } from '../domain/bankroll';
 import { BOT_PERSONAS } from '../domain/bots';
+import { SEAT_COUNT } from '../domain/showdown';
 import {
   FORGE_LIMIT,
   PRESSURE_ODDS,
   SWEEP_BONUS_UNITS,
 } from '../domain/showdownPayouts';
+import { STREAK_BONUS_UNITS } from '../domain/streakBonus';
 import { Reveal } from '../motion/Reveal';
 import { CONTENT_MAX_WIDTH, colors, radii, spacing, tabularNums, typography } from '../theme';
 
 interface HowToPlayScreenProps {
   readonly onBack: () => void;
 }
+
+/**
+ * The rules screen reads every payout and persona off the domain rather than
+ * restating them, so the table can change size without the copy going stale.
+ * The seat count is the one number that still needed spelling out.
+ */
+const SEAT_WORDS: Record<number, string> = {
+  2: 'two',
+  3: 'three',
+  4: 'four',
+  5: 'five',
+  6: 'six',
+};
+const seatWord = SEAT_WORDS[SEAT_COUNT] ?? String(SEAT_COUNT);
 
 const STEPS: { step: string; title: string; body: string }[] = [
   {
@@ -43,12 +59,21 @@ const STEPS: { step: string; title: string; body: string }[] = [
   },
 ];
 
+/** Book order: the streak counts that pay, lowest first. */
+const STREAK_BONUS_THRESHOLDS = Object.keys(STREAK_BONUS_UNITS)
+  .map(Number)
+  .sort((a, b) => a - b);
+
 const PAY_LINES: { name: string; pays: string }[] = [
   { name: 'Beat the dealer', pays: '1 to 1' },
   { name: 'Beat the dealer, pressured', pays: `${PRESSURE_ODDS} to 1` },
   { name: 'Kicker Strike', pays: '×2 winnings' },
   { name: 'Best hand at the table', pays: 'the Table Pot' },
   { name: 'Sweep (both, outright)', pays: `+${SWEEP_BONUS_UNITS} antes` },
+  {
+    name: `Win streak (${STREAK_BONUS_THRESHOLDS.join('/')})`,
+    pays: `+${STREAK_BONUS_THRESHOLDS.map((streak) => STREAK_BONUS_UNITS[streak]).join('/')} antes`,
+  },
   { name: 'Bail, any time you act', pays: 'half back' },
 ];
 
@@ -56,7 +81,9 @@ export const HowToPlayScreen: React.FC<HowToPlayScreenProps> = ({ onBack }) => (
   <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
     <Reveal index={0}>
       <Text style={styles.title}>How to play</Text>
-      <Text style={styles.subtitle}>Showdown — six seats against the house&apos;s climb.</Text>
+      <Text style={styles.subtitle}>
+        Showdown — {seatWord} seats against the house&apos;s climb.
+      </Text>
     </Reveal>
 
     {STEPS.map((step, index) => (

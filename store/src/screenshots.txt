@@ -1,0 +1,6 @@
+04-climb|The house builds its hand<br>one card at a time
+05-pressure|Double your stake after<br>the third card &mdash; wins pay 3:1
+08-result|Beat the dealer. Take the pot.<br>Do both and you sweep.
+03-kicker|Mark a secret kicker.<br>Match it and your win doubles.
+10-howto|Every payout spelled out<br>before you risk a chip
+01-home|No ads. No purchases.<br>Play money, always topped up.

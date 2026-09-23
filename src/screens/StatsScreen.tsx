@@ -92,8 +92,10 @@ export const StatsScreen: React.FC<StatsScreenProps> = ({ stats, onBack }) => {
 
       <Reveal index={2} style={styles.panel}>
         <View style={styles.achievementsHeader}>
-          <Text style={styles.panelLabel}>Achievements</Text>
-          <Text style={[styles.achievementCount, tabularNums]}>
+          <Text style={styles.panelLabel} maxFontSizeMultiplier={1.2}>
+            Achievements
+          </Text>
+          <Text style={[styles.achievementCount, tabularNums]} maxFontSizeMultiplier={1.2}>
             {unlockedIds.size}/{ACHIEVEMENTS.length}
           </Text>
         </View>
@@ -103,7 +105,13 @@ export const StatsScreen: React.FC<StatsScreenProps> = ({ stats, onBack }) => {
             return (
               <View key={achievement.id} style={[styles.badge, !unlocked && styles.badgeLocked]}>
                 <Text style={styles.badgeIcon}>{unlocked ? '🏅' : '🔒'}</Text>
-                <Text style={[styles.badgeTitle, !unlocked && styles.badgeTitleLocked]}>
+                {/* A badge is a fixed third of the row, and the longest names
+                    ("Unstoppable") already fill it at the base size — so this
+                    label holds still while the reading copy around it scales. */}
+                <Text
+                  style={[styles.badgeTitle, !unlocked && styles.badgeTitleLocked]}
+                  maxFontSizeMultiplier={1}
+                >
                   {achievement.title}
                 </Text>
               </View>
@@ -182,13 +190,19 @@ const styles = StyleSheet.create({
     borderRadius: radii.sm,
     backgroundColor: colors.surfaceRaised,
   },
-  badgeLocked: { opacity: 0.45 },
+  // 0.45 stacked on a muted colour over the felt landed near a quarter alpha.
+  badgeLocked: { opacity: 0.7 },
   badgeIcon: { fontSize: 22 },
-  badgeTitle: { fontSize: 11, fontWeight: '700', color: colors.text, textAlign: 'center' },
+  badgeTitle: { fontSize: 15, fontWeight: '700', color: colors.text, textAlign: 'center' },
   badgeTitleLocked: { color: colors.textFaint },
-  cellRow: { flexDirection: 'row', gap: spacing.sm },
-  cell: { flex: 1, gap: 2 },
-  cellLabel: { ...typography.label },
+  cellRow: { flexDirection: 'row', gap: spacing.sm, alignItems: 'stretch' },
+  // Several of these labels wrap onto a second line, which dropped their
+  // number below the rest of the row and left the grid reading as a zig-zag.
+  // Pinning the label to the top of the cell and the figure to the bottom
+  // lands every figure in a row on one line whatever the text size does to
+  // the labels above them — which is the whole point of a scoreboard.
+  cell: { flex: 1, gap: 2, justifyContent: 'space-between' },
+  cellLabel: { ...typography.label, lineHeight: 18 },
   cellValue: { fontSize: 24, fontWeight: '800', letterSpacing: -0.6, color: colors.text },
   creamCard: {
     backgroundColor: colors.panelCream,

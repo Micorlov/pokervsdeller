@@ -33,6 +33,13 @@ export const colors = {
 
   red: '#FF5A5F',
   redDim: 'rgba(255, 90, 95, 0.16)',
+  // A destructive control cannot be a red word on a translucent green wash:
+  // that pairing is the lowest contrast on the felt and the first thing to
+  // go for a red-green colour blind player. Solid dark ground, pale red ink
+  // — the difference is in luminance, so it survives without the hue.
+  redSurface: '#5E1F22',
+  redSurfaceEdge: 'rgba(255, 90, 95, 0.55)',
+  redInk: '#FFC2C4',
 
   // Felt-glass surfaces — alpha black over the green ground.
   surface: 'rgba(0, 0, 0, 0.18)',

@@ -9,6 +9,7 @@ import { PlayerSeat } from '../components/PlayerSeat';
 import { PotsRail } from '../components/PotsRail';
 import { PubButton } from '../components/PubButton';
 import { ResultFlash, ResultTone } from '../components/ResultFlash';
+import { StreakBonusToast } from '../components/StreakBonusToast';
 import { TopBar } from '../components/TopBar';
 import { RE_UP_AMOUNT, canPlay } from '../domain/bankroll';
 import { CATEGORY_ORDER, evaluateHand, handName } from '../domain/handRank';
@@ -81,7 +82,7 @@ const statusLine = (
   return null;
 };
 
-/** The felt itself: the house's climb up top, five regulars, your fan. */
+/** The felt itself: the house's climb up top, two regulars, your fan. */
 export const TableScreen: React.FC<TableScreenProps> = ({ table, onHome, onRules, onMenu }) => {
   const { round } = table;
   if (!round) return null;
@@ -111,13 +112,13 @@ export const TableScreen: React.FC<TableScreenProps> = ({ table, onHome, onRules
     <View style={styles.screen}>
       <View style={styles.column}>
         <TopBar
-          modeTitle="Showdown"
-          modeValue={`Ante ${round.ante}`}
+          stake={`Ante ${round.ante}`}
+          bankroll={human.stack}
           onHome={onHome}
           onRules={onRules}
           onMenu={onMenu}
         />
-        <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+        <ScrollView style={styles.scrollView} contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
           {/* The felt runs past both edges and only its far rail curves away,
               so the player reads as sitting at the near side of a big table
               rather than looking down at a small one. */}
@@ -133,7 +134,7 @@ export const TableScreen: React.FC<TableScreenProps> = ({ table, onHome, onRules
               />
 
               <View style={styles.seatRow}>
-                {bots.slice(0, 2).map((seat, index) => (
+                {bots.map((seat, index) => (
                   <PlayerSeat
                     key={seat.id}
                     seat={seat}
@@ -142,27 +143,21 @@ export const TableScreen: React.FC<TableScreenProps> = ({ table, onHome, onRules
                   />
                 ))}
               </View>
-
-              <PotsRail
-                tablePot={round.tablePot}
-                dealerStake={human.dealerStake}
-                pressured={human.pressured}
-              />
-
-              <View style={styles.seatRow}>
-                {bots.slice(2).map((seat, index) => (
-                  <PlayerSeat
-                    key={seat.id}
-                    seat={seat}
-                    settled={settled}
-                    isThinking={table.thinkingSeat === index + 3}
-                  />
-                ))}
-              </View>
-
             </View>
           </View>
         </ScrollView>
+
+        {/* The two prizes are pinned out of the scroller. In the pressure round
+            the action bar grows a row, the felt above gives up the height, and
+            these are the exact numbers the player is being asked to bet on —
+            they must never be the thing that gets cut. */}
+        <View style={styles.potsDock}>
+          <PotsRail
+            tablePot={round.tablePot}
+            dealerStake={human.dealerStake}
+            pressured={human.pressured}
+          />
+        </View>
 
         {/* Your own cards, your result and your move never scroll away: the
             table above can grow as long as it likes, but the three things a
@@ -173,6 +168,9 @@ export const TableScreen: React.FC<TableScreenProps> = ({ table, onHome, onRules
               achievements={table.newAchievements}
               onDismiss={table.dismissAchievements}
             />
+          ) : null}
+          {table.streakBonus ? (
+            <StreakBonusToast bonus={table.streakBonus} onDismiss={table.dismissStreakBonus} />
           ) : null}
           {flash ? (
             <ResultFlash text={flash.text} tone={flash.tone} flashKey={round.handNumber} />
@@ -185,6 +183,7 @@ export const TableScreen: React.FC<TableScreenProps> = ({ table, onHome, onRules
               scale={PLAYER_CARD_SCALE}
               animateIn={round.phase === 'dealing'}
               kickerIndex={human.kickerIndex}
+              freshIndex={table.freshCardIndex}
               selectableMode={fanMode}
               onSelectCard={onSelectCard}
             />
@@ -248,9 +247,13 @@ const styles = StyleSheet.create({
   screen: { flex: 1, alignItems: 'center' },
   // The felt is wider than the column, so the column has to clip it.
   column: { flex: 1, width: '100%', maxWidth: CONTENT_MAX_WIDTH, overflow: 'hidden' },
-  scroll: { paddingHorizontal: spacing.md, paddingBottom: spacing.md },
+  scrollView: { flex: 1 },
+  // flexGrow lets the felt reach the bottom of the scroller when the climb is
+  // short: without it the table stops at its content and the ground shows
+  // through as a hard horizontal seam across the middle of the screen.
+  scroll: { paddingHorizontal: spacing.md, paddingBottom: spacing.sm, flexGrow: 1 },
 
-  table: { position: 'relative' },
+  table: { position: 'relative', flex: 1 },
   // Both layers bleed past the column and round only their top corners: what
   // you see of the table's far edge is one broad arc, and the near edge runs
   // off the bottom of the screen towards the player.
@@ -298,12 +301,18 @@ const styles = StyleSheet.create({
       },
     ],
   },
-  tableContent: { gap: spacing.md, paddingTop: spacing.md, paddingBottom: spacing.lg },
+  tableContent: { gap: spacing.sm, paddingTop: spacing.sm, paddingBottom: spacing.xs },
 
   seatRow: { flexDirection: 'row', gap: spacing.sm },
 
-  // The dock carries the felt colour on so it reads as the table's near edge
-  // rather than a separate tray bolted under it.
+  // Both docks carry the felt colour on so they read as the table's near edge
+  // rather than separate trays bolted under it.
+  potsDock: {
+    paddingHorizontal: spacing.md,
+    paddingTop: spacing.xs,
+    paddingBottom: spacing.xs,
+    backgroundColor: '#217A42',
+  },
   handDock: {
     gap: spacing.sm,
     paddingHorizontal: spacing.md,

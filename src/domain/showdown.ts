@@ -25,7 +25,7 @@ import {
 
 export type ShowdownPhase = 'ante' | 'dealing' | 'kicker' | 'actions' | 'reveal' | 'settled';
 
-/** Four regulars and you — derived so the roster and the felt cannot drift. */
+/** Two regulars and you — derived so the roster and the felt cannot drift. */
 export const BOT_COUNT = BOT_PERSONAS.length;
 
 export const SEAT_COUNT = BOT_COUNT + 1;
@@ -90,7 +90,7 @@ const clearedSeat = (seat: ShowdownSeatState): ShowdownSeatState => ({
   settlement: null,
 });
 
-/** The human's seat, plus the five regulars, before any cards are out. */
+/** The human's seat, plus the two regulars, before any cards are out. */
 export const createShowdownTable = (
   humanStack: number,
   ante: Ante,
@@ -146,7 +146,7 @@ export const createShowdownTable = (
 });
 
 /**
- * Antes everyone up and deals the six player hands.
+ * Antes everyone up and deals every player hand.
  *
  * Both antes leave every stack at once — one chip stack into the table pot,
  * one staked against the house. The dealer gets nothing yet; the rest of the

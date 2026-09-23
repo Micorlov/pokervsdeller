@@ -1,0 +1,42 @@
+<!-- The Poker vs Dealer mark: a fan of two cards on lamp-lit felt.
+     Left card is the dealer's hidden back, right is the player's ace. -->
+<g id="mark">
+  <defs>
+    <linearGradient id="ivory" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#EDE8DA"/>
+    </linearGradient>
+    <linearGradient id="redback" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#B03A4A"/>
+      <stop offset="100%" stop-color="#7E2433"/>
+    </linearGradient>
+    <filter id="cardShadow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="18" stdDeviation="16" flood-color="#06180B" flood-opacity="0.60"/>
+    </filter>
+  </defs>
+
+  <g filter="url(#cardShadow)">
+    <!-- Dealer card, face down -->
+    <g transform="rotate(-23 512 792)">
+      <rect x="362" y="372" width="300" height="420" rx="30" fill="url(#redback)"/>
+      <rect x="392" y="402" width="240" height="360" rx="16" fill="none" stroke="rgba(255,233,236,0.45)" stroke-width="9"/>
+    </g>
+
+    <!-- Player card, ace of spades -->
+    <g transform="rotate(9 512 792)">
+      <rect x="362" y="372" width="300" height="420" rx="30" fill="url(#ivory)"/>
+      <rect x="362" y="372" width="300" height="420" rx="30" fill="none" stroke="#FFC93C" stroke-width="7"/>
+      <!-- Centred spade -->
+      <g transform="translate(512 578) scale(2.06) translate(-50 -50)">
+        <path fill="#22242E" d="M50 5 C50 5 15 39 8 56 C1 73 12 85 27 85 C37 85 45 79 48 71 C48 71 47 87 33 96 L67 96 C53 87 52 71 52 71 C55 79 63 85 73 85 C88 85 99 73 92 56 C85 39 50 5 50 5 Z"/>
+      </g>
+      <!-- Corner index — a detail for the 512px store icon -->
+      <g transform="translate(404 424)">
+        <text x="0" y="46" font-family="Georgia, 'Times New Roman', serif" font-size="66" font-weight="700" fill="#22242E">A</text>
+        <g transform="translate(4 58) scale(0.36)">
+          <path fill="#22242E" d="M50 5 C50 5 15 39 8 56 C1 73 12 85 27 85 C37 85 45 79 48 71 C48 71 47 87 33 96 L67 96 C53 87 52 71 52 71 C55 79 63 85 73 85 C88 85 99 73 92 56 C85 39 50 5 50 5 Z"/>
+        </g>
+      </g>
+    </g>
+  </g>
+</g>

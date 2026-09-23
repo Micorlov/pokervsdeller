@@ -37,8 +37,7 @@ const badgeFor = (seat: ShowdownSeatState): { text: string; style: BadgeStyle } 
 
 /**
  * A bot's place at the table: who they are, what they just did, what it cost
- * them. Four of these sit on the rail, two to a side, straddling the felt's
- * edge. A pressured seat wears a gold ring for the rest of the hand.
+ * them. One of these sits on the rail per bot, straddling the felt's edge. A pressured seat wears a gold ring for the rest of the hand.
  */
 export const PlayerSeat: React.FC<PlayerSeatProps> = ({
   seat,
@@ -109,8 +108,8 @@ export const PlayerSeat: React.FC<PlayerSeatProps> = ({
 const styles = StyleSheet.create({
   seat: {
     alignItems: 'center',
-    gap: spacing.sm,
-    paddingVertical: 10,
+    gap: spacing.xs,
+    paddingVertical: 6,
     paddingHorizontal: 5,
     borderRadius: radii.sm,
     // Seats straddle the rail, so they carry a heavier fill than the felt
