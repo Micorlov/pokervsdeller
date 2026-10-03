@@ -6,6 +6,7 @@ import { partialThreat } from '../domain/threat';
 import { colors, radii, spacing, typography } from '../theme';
 import { HandRankBadge } from './HandRankBadge';
 import { CARD_HEIGHT, CARD_WIDTH, PlayingCard } from './PlayingCard';
+import { DealerPortrait } from './DealerPortrait';
 
 interface DealerClimbProps {
   /** The dealer's cards so far, all face up, oldest first. */
@@ -32,7 +33,10 @@ export const DealerClimb: React.FC<DealerClimbProps> = ({ cards, rank, kickerStr
 
   return (
     <View style={styles.area}>
-      <Text style={styles.label}>The House</Text>
+      <View style={styles.header}>
+        <DealerPortrait height={64} />
+        <Text style={styles.label}>The House</Text>
+      </View>
       <View style={styles.cards}>
         {Array.from({ length: SLOT_COUNT }, (_, index) => {
           const card = cards[index];
@@ -87,6 +91,7 @@ export const DealerClimb: React.FC<DealerClimbProps> = ({ cards, rank, kickerStr
 
 const styles = StyleSheet.create({
   area: { alignItems: 'center', gap: spacing.xs },
+  header: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   label: { ...typography.label },
   cards: { flexDirection: 'row', gap: 6, justifyContent: 'center' },
   emptySlot: {

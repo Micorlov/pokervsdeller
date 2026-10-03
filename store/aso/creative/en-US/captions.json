@@ -1,0 +1,32 @@
+[
+  {
+    "sequence": 1,
+    "source": "03",
+    "caption": "Poker against the dealer"
+  },
+  {
+    "sequence": 2,
+    "source": "02",
+    "caption": "Pick your kicker"
+  },
+  {
+    "sequence": 3,
+    "source": "04",
+    "caption": "Choose your pressure round"
+  },
+  {
+    "sequence": 4,
+    "source": "05",
+    "caption": "Track your record"
+  },
+  {
+    "sequence": 5,
+    "source": "06",
+    "caption": "Learn the rules"
+  },
+  {
+    "sequence": 6,
+    "source": "01",
+    "caption": "Play offline. Play-money chips."
+  }
+]

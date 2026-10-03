@@ -1,0 +1,16 @@
+{
+  "locale":"en-US",
+  "state":"planned_not_started",
+  "minimumRunDays":14,
+  "evidenceRule":"Run two complete weeks and until Console reports sufficient evidence. No fixed impression threshold. Keep control if inconclusive.",
+  "sequence":[
+    {"element":"firstScreenshot","control":"Poker against the dealer","challenger":"One hand. Two contests.","sameProductionUi":true},
+    {"element":"shortDescription","control":"Play five-card poker offline. Hold, forge or bail against the dealer and table.","challenger":"Face the dealer in five-card poker. Offline play, no ads and play-money chips."},
+    {"element":"icon","control":"user-requested blonde woman with glasses and two aces","challenger":"same woman-and-cards concept with more prominent aces","readiness":"Current control submitted October 3. Produce and review challenger after prior tests finish; collect a new baseline after publication."}
+  ],
+  "allocation":"One challenger against control; change one element at a time. Avoid simultaneous listing updates in en-US while a test runs.",
+  "primaryMetric":"listing unique install-click rate",
+  "secondaryMetrics":["completed listing acquisitions","ratings","crashes","ANRs","post-install engagement"],
+  "target":"20% relative increase is a planning target, not a forecast; a 100% baseline cannot improve by 20% relatively.",
+  "rollback":"Restore the winning/control files from the dated backup and log the decision."
+}

@@ -1,0 +1,8 @@
+{
+  "en-US": {
+    "metadataReview": "ready",
+    "creativeReview": "ready",
+    "reviewer": "Codex",
+    "evidence": "Production v3 AAB SHA256 matches the local pre-change release; English UI and source inspected. New dealer artwork is excluded from production listing assets until released."
+  }
+}

@@ -1,0 +1,3 @@
+New dealer artwork in an emerald dress on the home screen and poker table.
+New Poker vs Dealer icon with a matching in-game logo.
+Scrollable home screen keeps controls reachable on smaller displays.

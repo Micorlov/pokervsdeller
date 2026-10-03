@@ -47,5 +47,10 @@ dist-android/
 # signing
 credentials/
 
+# Local Play Console exports, original backups and device verification evidence.
+store/aso/backups/
+store/aso/reports/
+store/aso/.play-operation.lock
+
 # python bytecode
 __pycache__/
