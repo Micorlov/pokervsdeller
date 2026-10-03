@@ -1,5 +1,6 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { DealerPortrait } from '../components/DealerPortrait';
 import { PubButton } from '../components/PubButton';
 import { SegmentRow } from '../components/SegmentRow';
 import { ANTE_OPTIONS, Ante, RE_UP_AMOUNT, canPlay } from '../domain/bankroll';
@@ -40,10 +41,21 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   const isBusted = !canPlay(bankroll, ante);
 
   return (
-    <View style={styles.screen}>
+    <ScrollView contentContainerStyle={styles.screen}>
       <View style={styles.column}>
         <Reveal index={0}>
-          <Text style={styles.title}>Showdown</Text>
+          <DealerPortrait />
+          <View style={styles.titleRow}>
+            <Image
+              source={require('../../assets/icon.png')}
+              style={styles.gameIcon}
+              accessible
+              accessibilityLabel="Poker vs Dealer app icon"
+            />
+            <Text style={styles.title} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6}>
+              Showdown
+            </Text>
+          </View>
           <Text style={styles.subtitle}>
             Dealer vs Three — beat the house&apos;s climb, and the whole table
           </Text>
@@ -94,14 +106,16 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           </View>
         </Reveal>
       </View>
-    </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing.lg },
+  screen: { flexGrow: 1, alignItems: 'center', justifyContent: 'center', padding: spacing.lg },
   column: { width: '100%', maxWidth: CONTENT_MAX_WIDTH, gap: spacing.lg },
-  title: { ...typography.title, textAlign: 'center' },
+  titleRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm },
+  gameIcon: { width: 52, height: 52, borderRadius: radii.md },
+  title: { ...typography.title, textAlign: 'center', flexShrink: 1 },
   subtitle: { ...typography.bodyMuted, textAlign: 'center', marginTop: spacing.xs },
   panelWrap: { width: '100%' },
   panel: {

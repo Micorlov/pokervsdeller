@@ -1,0 +1,9 @@
+{
+  "locale":"en-US",
+  "measuredSearchVolume":null,
+  "primary":["poker vs dealer","offline poker game","five card poker"],
+  "supporting":["poker card game","play money poker","single player poker"],
+  "specific":["poker against dealer","poker no ads","offline card game"],
+  "exclude":["poker trainer","Texas Hold'em","GTO solver","real money poker","online multiplayer"],
+  "status":"Hypotheses grounded in verified features; Console search-term data and Play suggestions need sufficient traffic/research. No volume claims."
+}

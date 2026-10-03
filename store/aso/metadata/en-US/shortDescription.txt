@@ -1,0 +1,1 @@
+Play five-card poker offline. Hold, forge or bail against the dealer and table.

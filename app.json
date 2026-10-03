@@ -13,12 +13,11 @@
     "android": {
       "predictiveBackGestureEnabled": false,
       "package": "com.micorlov.pokervsdealer",
-      "versionCode": 3,
+      "versionCode": 4,
       "adaptiveIcon": {
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
-        "monochromeImage": "./assets/android-icon-monochrome.png",
-        "backgroundColor": "#1E6B3C"
+        "backgroundColor": "#05632F"
       }
     },
     "plugins": [

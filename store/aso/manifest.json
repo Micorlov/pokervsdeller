@@ -1,0 +1,12 @@
+{
+  "package": "com.micorlov.pokervsdealer",
+  "productionVersionCode": 3,
+  "submittedProductionVersionCode": 4,
+  "submittedProductionBundleSha256": "517e1e0a1edf093c37afff140b2f93d5ee7b5b9f2b2605fec8e9ef06569585cf",
+  "publicationStatus": "Version 4 submitted October 3, 2026; public production availability not yet verified.",
+  "productionBundleSha256": "832c5997cd321a19f7437af60aba3ea26310611bc323beccfe40ab7e9dba8dc9",
+  "appLanguageDiscovery": "No language registry, translation resources or locale selection exist; shipped UI strings are English.",
+  "locales": [{"appLocale":"en","playLocale":"en-US","batch":0,"metadataReview":"ready","creativeReview":"ready","searchResearch":"keyword_hypothesis_not_measured"}],
+  "measurementEvidence": "Private Console observations are preserved locally in reports/baseline.json and excluded from the public Git repository.",
+  "expandedLocalization": "Pending a separate in-app localization project and fluent-speaker review. Do not reuse Holdem Coach's 34-language registry for this game."
+}
