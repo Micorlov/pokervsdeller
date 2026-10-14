@@ -1,0 +1,594 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Showdown Walnut Redesign</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;1,500;1,600&family=Cormorant+SC:wght@600&family=DM+Mono:wght@400;500&family=Manrope:wght@500;600;700;800&display=block" rel="stylesheet">
+<style>
+  /* One PDF page = one 1720x1060 board. Phones are drawn at 390x844 dp, the size the Unity panel lays out in. */
+  @page { size: 1720px 1060px; margin: 0; }
+  :root {
+    --walnut-top: #3d2617; --walnut-bot: #24140b; --rail-hi: #8a5632; --rail-lo: #4a2814;
+    --felt-hi: #2f8a5a; --felt-mid: #1f6e47; --felt-lo: #145236; --floor: #170d08;
+    --gold: #e6c57e; --gold-deep: #c9a259; --gold-ink: #2a1a0a; --cream: #f4e6c8; --cream-mute: #cdb88f;
+    --mint: #8fe3c0; --mint-line: rgba(143, 227, 192, .55); --sheet: #0c1914; --red-ink: #ffc2c4;
+    --card-red: #c4303b; --card-black: #1d1f26;
+    --serif: 'Cormorant Garamond', Georgia, serif; --sc: 'Cormorant SC', Georgia, serif;
+    --mono: 'DM Mono', ui-monospace, Menlo, monospace; --sans: 'Manrope', 'Noto Sans', system-ui, sans-serif;
+    --suit: 'Apple Symbols', 'Noto Sans Symbols 2', 'DejaVu Sans', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: #0f0805; }
+  body { font-family: var(--sans); color: var(--cream); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+  .page { width: 1720px; height: 1060px; position: relative; overflow: hidden; page-break-after: always; break-after: page;
+    background: radial-gradient(ellipse at 50% 0%, #2a1910 0%, #140b07 60%, #0d0704 100%); padding: 34px 44px; }
+  .page:last-child { page-break-after: auto; break-after: auto; }
+  .page-head { display: flex; align-items: baseline; justify-content: space-between; height: 64px; }
+  .page-head h2 { font-family: var(--serif); font-style: italic; font-weight: 600; font-size: 40px; color: var(--cream); }
+  .page-head .kicker { font-family: var(--mono); font-size: 15px; letter-spacing: 2px; color: var(--cream-mute); text-transform: uppercase; }
+  .row { display: flex; gap: 24px; }
+  .frame { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+  .caption { font-family: var(--sans); font-weight: 600; font-size: 17px; color: var(--cream-mute); display: flex; gap: 10px; align-items: center; }
+  .caption b { font-family: var(--mono); font-weight: 500; color: var(--gold); font-size: 15px; }
+
+  /* ---------- phone ---------- */
+  .phone { width: 390px; height: 844px; position: relative; overflow: hidden; border-radius: 34px; background: var(--floor);
+    box-shadow: 0 0 0 1px rgba(255, 220, 170, .12), 0 30px 60px rgba(0, 0, 0, .55); }
+
+  .topbar { position: absolute; left: 0; right: 0; top: 0; height: 108px; overflow: hidden; z-index: 10;
+    background: linear-gradient(180deg, var(--walnut-top), var(--walnut-bot)); }
+  .topbar::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 7px;
+    background: linear-gradient(180deg, #6e4224, #3c2010); box-shadow: inset 0 1px 0 rgba(255, 210, 160, .25); }
+  .bokeh { position: absolute; border-radius: 50%; background: radial-gradient(circle, rgba(255, 190, 110, .55), rgba(255, 170, 80, 0) 70%); }
+  .iconbtn { position: absolute; top: 16px; width: 48px; height: 48px; border-radius: 50%; background: rgba(0, 0, 0, .28);
+    border: 1px solid rgba(255, 220, 170, .2); display: flex; align-items: center; justify-content: center; }
+  .iconbtn svg { width: 22px; height: 22px; stroke: var(--cream); fill: none; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+  .tb-title { position: absolute; left: 0; right: 0; top: 10px; text-align: center; font-family: var(--serif); font-style: italic;
+    font-weight: 600; font-size: 31px; color: var(--cream); line-height: 1.1; }
+  .tb-sub { position: absolute; left: 0; right: 0; top: 46px; text-align: center; font-family: var(--mono); font-size: 14px;
+    letter-spacing: 1.5px; color: var(--cream-mute); }
+  .chip-status { position: absolute; top: 70px; left: 50%; transform: translateX(-50%); padding: 3px 16px; border-radius: 999px;
+    border: 1.5px solid var(--gold-deep); background: rgba(24, 12, 6, .75); font-weight: 700; font-size: 15px; color: var(--cream); white-space: nowrap; }
+
+  .table { position: absolute; left: 0; right: 0; top: 108px; }
+  .rail { position: absolute; left: -70px; width: 530px; top: -30px; border-radius: 0 0 50% 50% / 0 0 34% 34%;
+    background: linear-gradient(180deg, #5a331b, var(--rail-hi) 80%, var(--rail-lo));
+    box-shadow: inset 0 -3px 0 rgba(255, 210, 160, .25), 0 10px 30px rgba(0, 0, 0, .6); }
+  .felt { position: absolute; left: -56px; width: 502px; top: -30px; border-radius: 0 0 50% 50% / 0 0 33% 33%;
+    background: radial-gradient(ellipse at 50% 26%, var(--felt-hi) 0%, var(--felt-mid) 46%, var(--felt-lo) 100%); overflow: hidden; }
+  .felt::before { content: ''; position: absolute; inset: 0; opacity: .18;
+    background: repeating-radial-gradient(circle at 30% 20%, rgba(0, 0, 0, .25) 0 1px, transparent 1px 3px); }
+  .feltline { position: absolute; left: -46px; width: 482px; top: -30px; border-radius: 0 0 50% 50% / 0 0 33% 33%;
+    border: 1.5px solid rgba(233, 200, 120, .32); border-top: none; }
+
+  .tray { position: absolute; left: 50%; transform: translateX(-50%); top: 8px; height: 28px; padding: 3px 8px; border-radius: 4px;
+    background: linear-gradient(#1a1a1a, #2e2e2e); display: flex; gap: 2px; box-shadow: 0 3px 6px rgba(0, 0, 0, .5); }
+  .tray i { display: block; width: 9px; height: 22px; border-radius: 2px; }
+  .shoe { position: absolute; right: 16px; top: 6px; width: 50px; height: 30px; border-radius: 5px; background: linear-gradient(#2a2a2a, #111);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, .5); }
+  .shoe::after { content: ''; position: absolute; left: 7px; right: 7px; top: 11px; height: 7px; background: #f3efe6; border-radius: 1px; }
+  .placard { position: absolute; left: 14px; top: 6px; padding: 4px 8px; background: #f3ead6; color: #2a2016; border-radius: 3px;
+    font-family: var(--mono); font-size: 13px; line-height: 1.25; box-shadow: 0 2px 5px rgba(0, 0, 0, .45); }
+
+  /* ---------- cards ---------- */
+  .card { position: absolute; border-radius: 9%/6.5%; background: linear-gradient(170deg, #fffdf7, #efe7d4);
+    box-shadow: 0 1px 0 rgba(255, 255, 255, .9) inset, 0 -2px 0 rgba(103, 94, 72, .35) inset, 0 4px 10px rgba(0, 0, 0, .38); overflow: hidden; }
+  .card .cr { position: absolute; left: 8%; top: 4%; font-family: var(--sans); font-weight: 800; line-height: 1; letter-spacing: -1px; }
+  .card .cs { position: absolute; left: 9%; font-family: var(--suit); line-height: 1; }
+  .card .big { position: absolute; right: 9%; bottom: 6%; font-family: var(--suit); line-height: 1; }
+  .card .face { position: absolute; right: 9%; bottom: 7%; width: 62%; height: 64%; border: 1.5px solid currentColor; border-radius: 4px;
+    display: flex; align-items: center; justify-content: center; font-family: var(--serif); font-weight: 600; background: rgba(255, 233, 200, .45); }
+  .card.back { background: #b83a46; border: 3px solid #f3efe6; }
+  .card.back::after { content: ''; position: absolute; inset: 3px; border-radius: 4px;
+    background: repeating-linear-gradient(45deg, rgba(255, 255, 255, .16) 0 2px, transparent 2px 7px),
+                repeating-linear-gradient(-45deg, rgba(255, 255, 255, .16) 0 2px, transparent 2px 7px), #a32f3b; }
+  .card.dim { filter: grayscale(.85) brightness(.75); opacity: .55; }
+  .card.pick { box-shadow: 0 0 0 3px var(--gold), 0 10px 22px rgba(0, 0, 0, .5); }
+  .slot { position: absolute; border-radius: 8px; border: 1.5px dashed rgba(233, 220, 180, .35); background: rgba(0, 0, 0, .08); }
+  .star { position: absolute; width: 30px; height: 30px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #ffe08a, #e0a92a);
+    color: #1d2240; font-size: 17px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0, 0, 0, .45); z-index: 30; }
+  .xmark { position: absolute; color: rgba(60, 20, 20, .75); font-family: var(--sans); font-weight: 800; }
+
+  /* ---------- felt labels ---------- */
+  .pill { position: absolute; display: flex; align-items: center; gap: 7px; padding: 5px 12px; border-radius: 999px; white-space: nowrap;
+    background: rgba(12, 26, 19, .84); border: 1px solid rgba(255, 255, 255, .14); box-shadow: 0 3px 8px rgba(0, 0, 0, .35); z-index: 20; }
+  .pill .nm { font-weight: 700; font-size: 16px; color: #fff; }
+  .pill .st { font-weight: 600; font-size: 15px; color: rgba(244, 230, 200, .78); }
+  .pill.gold { border: 1.5px solid var(--gold); background: rgba(70, 48, 16, .88); }
+  .pill.gold .st { color: var(--gold); }
+  .pill.mint .st { color: var(--mint); }
+  .pill.loss .st { color: #ff9a9a; }
+  .dealerbox { position: absolute; z-index: 36; padding: 7px 12px; border-radius: 12px; background: rgba(10, 20, 15, .82); border: 1px solid rgba(255, 255, 255, .16); }
+  .dealerbox .t { font-weight: 600; font-size: 14px; color: rgba(244, 230, 200, .75); }
+  .dealerbox .v { font-family: var(--mono); font-weight: 500; font-size: 16px; color: #fff; margin-top: 2px; }
+  .threat { position: absolute; display: flex; align-items: center; gap: 6px; }
+  .threat span { font-family: var(--sc); font-size: 15px; letter-spacing: 2px; color: rgba(244, 230, 200, .75); margin-right: 4px; }
+  .threat i { display: block; width: 26px; height: 9px; border-radius: 5px; background: rgba(0, 0, 0, .35); }
+  .threat i.on { background: linear-gradient(#ffd27a, #e4a43a); }
+  .pot { position: absolute; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 9px; padding: 6px 16px 6px 8px;
+    border-radius: 999px; background: rgba(12, 26, 19, .86); border: 1.5px solid rgba(233, 200, 120, .55); white-space: nowrap; }
+  .pot .lb { font-weight: 600; font-size: 15px; color: rgba(244, 230, 200, .8); }
+  .pot .n { font-family: var(--mono); font-weight: 500; font-size: 17px; color: var(--gold); }
+  .pot .sep { width: 1px; height: 18px; background: rgba(233, 200, 120, .4); }
+  .chipdot { width: 26px; height: 26px; border-radius: 50%; position: relative; flex: none;
+    background: repeating-conic-gradient(#fff 0 10deg, var(--c, #c0392b) 10deg 60deg); box-shadow: 0 2px 4px rgba(0, 0, 0, .45); }
+  .chipdot::after { content: ''; position: absolute; inset: 22%; border-radius: 50%; background: var(--c, #c0392b); border: 1.5px dashed rgba(255, 255, 255, .7); }
+  .handbadge { position: absolute; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 10px; padding: 5px 18px 5px 5px;
+    border-radius: 999px; background: rgba(12, 26, 19, .9); border: 1.5px solid var(--gold); box-shadow: 0 4px 10px rgba(0, 0, 0, .4); white-space: nowrap; z-index: 20; }
+  .handbadge .disc { width: 40px; height: 40px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #f6dc9b, #c99a43);
+    display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-weight: 500; font-size: 18px; color: var(--gold-ink); }
+  .handbadge .disc small { font-size: 12px; margin-left: 1px; }
+  .handbadge .w { font-weight: 800; font-size: 21px; color: #fff; }
+  .handbadge .s { font-weight: 600; font-size: 15px; color: var(--cream-mute); }
+  .ring { position: absolute; border-radius: 50%; border: 1.5px dashed rgba(233, 220, 180, .45); }
+  .arc { position: absolute; left: 0; top: 0; overflow: visible; }
+
+  /* ---------- below the rail ---------- */
+  .bank { position: absolute; left: 0; right: 0; display: flex; align-items: center; justify-content: center; gap: 10px; }
+  .stacks { display: flex; gap: 4px; align-items: flex-end; }
+  .stacks i { display: block; width: 18px; border-radius: 3px;
+    background: repeating-linear-gradient(180deg, var(--c) 0 4px, rgba(255, 255, 255, .85) 4px 5px); box-shadow: 0 2px 4px rgba(0, 0, 0, .5); }
+  .bank .lb { font-weight: 600; font-size: 16px; color: var(--cream-mute); }
+  .bank .n { font-family: var(--mono); font-weight: 500; font-size: 20px; color: #fff; }
+  .dock { position: absolute; left: 16px; right: 16px; display: flex; flex-direction: column; gap: 10px; }
+  .btn { border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 58px; text-align: center; }
+  .btn .l { font-weight: 800; font-size: 20px; line-height: 1.15; }
+  .btn .d { font-family: var(--mono); font-size: 14px; margin-top: 2px; opacity: .85; }
+  .btn.primary { background: linear-gradient(180deg, #f2d898, #d7ae5e); color: var(--gold-ink); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .6), 0 6px 14px rgba(0, 0, 0, .45); }
+  .btn.primary .l { letter-spacing: 1.2px; text-transform: uppercase; }
+  .btn.secondary { background: rgba(255, 255, 255, .04); border: 1.5px solid var(--mint-line); color: #e8f5ee; }
+  .btn.danger { background: #3b1517; border: 1.5px solid rgba(255, 120, 120, .5); color: var(--red-ink); }
+  .btn.bonus { background: rgba(70, 48, 16, .6); border: 1.5px solid var(--gold); color: var(--gold); }
+  .btnrow { display: flex; gap: 10px; }
+  .btnrow .btn { flex: 1; }
+  .statusline { position: absolute; left: 0; right: 0; text-align: center; font-size: 24px; font-weight: 600; color: var(--cream); }
+  .statusline::before { content: '\25CF'; color: var(--gold-deep); font-size: 15px; margin-right: 12px; vertical-align: 4px; }
+  .hint { text-align: center; font-size: 17px; color: var(--cream-mute); line-height: 1.35; }
+
+  /* ---------- result sheet ---------- */
+  .scrim { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0, 0, 0, 0) 30%, rgba(0, 0, 0, .55) 60%); z-index: 50; }
+  .sheet { position: absolute; left: 12px; right: 12px; bottom: 14px; border-radius: 20px; background: var(--sheet); border: 2px solid var(--mint-line);
+    padding: 18px 18px 16px; box-shadow: 0 -10px 40px rgba(0, 0, 0, .6); z-index: 60; }
+  .sheet.lose { border-color: rgba(255, 140, 140, .45); }
+  .sheet .hd { display: flex; align-items: baseline; justify-content: space-between; }
+  .sheet .ttl { font-family: var(--serif); font-style: italic; font-weight: 600; font-size: 29px; color: var(--mint); line-height: 1.05; }
+  .sheet.lose .ttl { color: #ffb3b3; }
+  .sheet .net { font-family: var(--mono); font-weight: 500; font-size: 34px; color: var(--mint); }
+  .sheet.lose .net { color: #ffb3b3; }
+  .sheet .vs { margin-top: 6px; padding-bottom: 10px; border-bottom: 1px solid rgba(255, 255, 255, .12); font-family: var(--mono); font-size: 14px; letter-spacing: 1px; color: var(--cream-mute); }
+  .ledger { margin-top: 10px; display: flex; flex-direction: column; gap: 5px; }
+  .ledger div { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 16px; color: #e6efe9; }
+  .ledger div b { font-weight: 500; }
+  .ledger .g { color: var(--mint); }
+  .ledger .r { color: #ff9a9a; }
+  .ledger .tot { border-top: 1px solid rgba(255, 255, 255, .12); padding-top: 6px; margin-top: 2px; }
+  .award { margin-top: 12px; display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 14px; border: 1.5px solid var(--gold);
+    background: linear-gradient(180deg, rgba(90, 64, 22, .7), rgba(48, 32, 10, .7)); }
+  .award .m { width: 38px; height: 38px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #f6dc9b, #c99a43); color: var(--gold-ink);
+    display: flex; align-items: center; justify-content: center; font-family: var(--serif); font-weight: 600; font-size: 22px; flex: none; }
+  .award .t { font-weight: 800; font-size: 18px; color: var(--gold); }
+  .award .s { font-family: var(--mono); font-size: 13px; color: var(--cream-mute); letter-spacing: 1px; }
+  .award .v { margin-left: auto; font-family: var(--mono); font-weight: 500; font-size: 22px; color: var(--gold); }
+  .others { margin-top: 10px; display: flex; gap: 8px; }
+  .others span { flex: 1; text-align: center; font-family: var(--mono); font-size: 14px; color: var(--cream-mute); padding: 5px 6px; border-radius: 8px; background: rgba(255, 255, 255, .05); }
+  .others span b { font-weight: 500; color: #ff9a9a; }
+  .sheet .btn { margin-top: 14px; }
+  .confetti { position: absolute; width: 7px; height: 11px; border-radius: 1px; z-index: 35; }
+  .take { position: absolute; left: 50%; transform: translateX(-50%); padding: 3px 12px; border-radius: 999px; background: var(--gold);
+    color: var(--gold-ink); font-family: var(--mono); font-weight: 500; font-size: 15px; letter-spacing: .5px; box-shadow: 0 3px 8px rgba(0, 0, 0, .4); white-space: nowrap; }
+
+  /* ---------- boards ---------- */
+  .board { background: rgba(255, 240, 210, .035); border: 1px solid rgba(255, 220, 170, .12); border-radius: 20px; padding: 18px 22px; }
+  .board h3 { font-family: var(--sc); font-weight: 600; font-size: 19px; letter-spacing: 2.5px; color: var(--gold); margin-bottom: 12px; }
+  .board p, .board li { font-size: 16px; line-height: 1.5; color: #e9dcc0; }
+  .board ul { padding-left: 18px; }
+  .board li + li { margin-top: 5px; }
+  .board li b { color: #fff; }
+  .board code { font-family: var(--mono); font-size: 14px; color: var(--gold); }
+  .sw { display: flex; flex-direction: column; gap: 6px; width: 92px; }
+  .sw i { display: block; height: 50px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, .15); }
+  .sw span { font-family: var(--mono); font-size: 13px; color: var(--cream-mute); }
+  .sw b { font-size: 14px; font-weight: 700; color: var(--cream); }
+  .map { width: 100%; border-collapse: collapse; }
+  .map td { padding: 6px 10px; font-size: 15px; vertical-align: top; border-top: 1px solid rgba(255, 220, 170, .1); color: #e9dcc0; }
+  .map td:first-child { color: var(--cream-mute); width: 34%; }
+  .map tr:first-child td { border-top: none; }
+  .spec { position: relative; height: 70px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+/* Every phone is assembled from the same builders, so the states on a page cannot drift apart. */
+const SUIT = { s: '♠', h: '♥', d: '♦', c: '♣' };
+const RED = { h: true, d: true };
+
+function card(code, x, y, w, opt = {}) {
+  const h = Math.round(w * 1.4);
+  const lift = opt.lift ? `translateY(${-opt.lift}px) ` : '';
+  const cls = ['card', opt.back ? 'back' : '', opt.dim ? 'dim' : '', opt.pick ? 'pick' : ''].join(' ');
+  const base = `left:${x}px;top:${y}px;width:${w}px;height:${h}px;transform:${lift}rotate(${opt.rot || 0}deg);z-index:${opt.z || 1}`;
+  const star = opt.star ? `<div class="star" style="left:${x + w - 20}px;top:${y - 12 - (opt.lift || 0)}px">★</div>` : '';
+  if (opt.back) return `<div class="${cls}" style="${base}"></div>`;
+  const rank = code.slice(0, -1);
+  const suit = code.slice(-1);
+  const color = RED[suit] ? 'var(--card-red)' : 'var(--card-black)';
+  const rs = Math.round(w * (rank.length > 1 ? 0.3 : 0.34));
+  const ss = Math.round(w * 0.26);
+  const inner = 'JQK'.includes(rank)
+    ? `<div class="face" style="font-size:${Math.round(w * 0.42)}px">${rank}</div>`
+    : `<div class="big" style="font-size:${Math.round(w * 0.5)}px">${SUIT[suit]}</div>`;
+  const mark = opt.x ? `<div class="xmark" style="right:8%;top:3%;font-size:${Math.round(w * .2)}px">✕</div>` : '';
+  return `<div class="${cls}" style="${base};color:${color}">
+    <div class="cr" style="font-size:${rs}px">${rank}</div>
+    <div class="cs" style="top:${Math.round(rs * 1.1 + h * 0.04)}px;font-size:${ss}px">${SUIT[suit]}</div>${inner}${mark}</div>${star}`;
+}
+
+/** A fanned hand: cards spread around a centre point, tilted a little more the further out they sit. */
+function fan(codes, cx, y, w, step, opt = {}) {
+  const n = codes.length;
+  const span = w + step * (n - 1);
+  return codes.map((c, i) => {
+    const off = i - (n - 1) / 2;
+    const per = opt.each ? (opt.each[i] || {}) : {};
+    return card(c, cx - span / 2 + i * step, y + Math.abs(off) * (opt.drop ?? 4), w,
+      Object.assign({ rot: off * (opt.tilt ?? 4), z: i + 2, dim: opt.dim, x: opt.dim }, per));
+  }).join('');
+}
+
+function slots(cx, y, w, step, count, filled) {
+  const span = w + step * (count - 1);
+  let out = '';
+  for (let i = filled; i < count; i++) {
+    out += `<div class="slot" style="left:${cx - span / 2 + i * step}px;top:${y}px;width:${w}px;height:${Math.round(w * 1.4)}px"></div>`;
+  }
+  return out;
+}
+
+function bokeh(list) {
+  return list.map(([x, y, r]) => `<div class="bokeh" style="left:${x - r}px;top:${y - r}px;width:${2 * r}px;height:${2 * r}px"></div>`).join('');
+}
+
+function topbar(title, sub, status) {
+  const back = '<svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>';
+  const help = '<svg viewBox="0 0 24 24"><path d="M9.2 9a3 3 0 1 1 4.3 2.7c-.9.5-1.5 1.1-1.5 2.3"/><circle cx="12" cy="18" r=".6" fill="#f4e6c8"/></svg>';
+  const menu = '<svg viewBox="0 0 24 24"><circle cx="12" cy="5.5" r="1" fill="#f4e6c8"/><circle cx="12" cy="12" r="1" fill="#f4e6c8"/><circle cx="12" cy="18.5" r="1" fill="#f4e6c8"/></svg>';
+  return `<div class="topbar">${bokeh([[262, 18, 46], [300, 72, 26], [96, 74, 22], [340, 36, 18], [70, 20, 14]])}
+    <div class="iconbtn" style="left:14px">${back}</div>
+    <div class="tb-title">${title}</div><div class="tb-sub">${sub}</div>
+    <div class="iconbtn" style="right:70px">${help}</div><div class="iconbtn" style="right:14px">${menu}</div>
+    ${status ? `<div class="chip-status">${status}</div>` : ''}</div>`;
+}
+
+const TRAY = ['#f4f0e6', '#c0392b', '#c0392b', '#1e8449', '#1e8449', '#1f2a44', '#1f2a44', '#6c3483', '#d4ac0d', '#d4ac0d'];
+
+/** The felt and rail. `h` is how far down the table area the near rail reaches. */
+function table(h, inner) {
+  return `<div class="table" style="height:${h}px">
+    <div class="rail" style="height:${h + 30}px"></div>
+    <div class="felt" style="height:${h + 16}px"></div>
+    <div class="feltline" style="height:${h + 6}px"></div>
+    <div class="tray">${TRAY.map(c => `<i style="background:linear-gradient(90deg,${c},${c}cc)"></i>`).join('')}</div>
+    <div class="shoe"></div>
+    <div class="placard">Ante 10<br>Sweep ×5</div>
+    ${inner}</div>`;
+}
+
+let arcId = 0;
+function arcText(y, top, bottom) {
+  const a = `arc${++arcId}`;
+  return `<svg class="arc" width="390" height="120" style="top:${y}px" viewBox="0 0 390 120">
+    <defs><path id="${a}" d="M 40 14 Q 195 62 350 14"/><path id="${a}b" d="M 70 44 Q 195 80 320 44"/></defs>
+    <text font-family="Cormorant SC" font-weight="600" font-size="19" letter-spacing="3.2" fill="rgba(244,230,200,.72)">
+      <textPath href="#${a}" startOffset="50%" text-anchor="middle">${top}</textPath></text>
+    <text font-family="Cormorant Garamond" font-style="italic" font-weight="500" font-size="17" fill="rgba(244,230,200,.66)">
+      <textPath href="#${a}b" startOffset="50%" text-anchor="middle">${bottom}</textPath></text></svg>`;
+}
+
+function threat(x, y, on) {
+  return `<div class="threat" style="left:${x}px;top:${y}px"><span>Threat</span>${[0, 1, 2, 3, 4].map(i => `<i class="${i < on ? 'on' : ''}"></i>`).join('')}</div>`;
+}
+
+function pot(y, tablePot, house) {
+  return `<div class="pot" style="top:${y}px"><div class="chipdot" style="--c:#c0392b"></div>
+    <span class="lb">Table pot</span><span class="n">${tablePot}</span><span class="sep"></span>
+    <span class="lb">vs house</span><span class="n">${house}</span></div>`;
+}
+
+function seatPill(x, y, name, status, tone = '') {
+  return `<div class="pill ${tone}" style="left:${x}px;top:${y}px"><span class="nm">${name}</span><span class="st">${status}</span></div>`;
+}
+
+function handBadge(y, kicker, words, sub) {
+  return `<div class="handbadge" style="top:${y}px"><div class="disc">${kicker}<small>★</small></div>
+    <span class="w">${words}</span>${sub ? `<span class="s">${sub}</span>` : ''}</div>`;
+}
+
+function bank(y, amount) {
+  const st = [['#c0392b', 30], ['#1e8449', 22], ['#1f2a44', 26]];
+  return `<div class="bank" style="top:${y}px"><div class="stacks">${st.map(([c, h]) => `<i style="--c:${c};height:${h}px"></i>`).join('')}</div>
+    <span class="lb">Bankroll</span><span class="n">${amount}</span></div>`;
+}
+
+function dealerRow(cards, label, value, threatOn) {
+  const cx = 150;
+  const w = 56;
+  const step = 34;
+  let out = slots(cx, 50, w, step, 5, cards.length);
+  cards.forEach((c, i) => { out += card(c, cx - (w + step * 4) / 2 + i * step, 50, w, { z: i + 2 }); });
+  out += `<div class="dealerbox" style="left:270px;top:58px"><div class="t">${label}</div><div class="v">${value}</div></div>`;
+  if (threatOn !== null) out += threat(64, 140, threatOn);
+  return out;
+}
+
+const PLAYER = ['Kc', '5s', '8d', 'As', 'Ac'];
+const GUS = ['Qc', '2s', '2c', '7d', '6c'];
+const DUKE = ['10d', 'Qs', '6d', 'Kd', 'Jc'];
+const HOUSE = ['Ah', 'Jd', 'Ks', '5d', '3d'];
+
+function seats(duke, gus, y) {
+  return seatPill(10, y, 'Duke', duke.status, duke.tone) + fan(DUKE, 56, y + 42, 38, 13, { tilt: 5, drop: 2, dim: duke.dim })
+    + `<div class="ring" style="left:20px;top:${y + 106}px;width:72px;height:22px"></div>`
+    + seatPill(gus.x ?? 262, y, 'Gus', gus.status, gus.tone) + fan(gus.cards || GUS, 334, y + 42, 38, 13, { tilt: 5, drop: 2 })
+    + `<div class="ring" style="left:298px;top:${y + 106}px;width:72px;height:22px"></div>`;
+}
+
+function playerHand(y, each) {
+  return fan(PLAYER, 195, y, 70, 46, { tilt: 5, drop: 5, each: each || { 2: { star: true } } });
+}
+
+function confetti(seed, n, area) {
+  let s = seed;
+  const rnd = () => (s = (s * 9301 + 49297) % 233280) / 233280;
+  const colors = ['#e6c57e', '#8fe3c0', '#ffffff', '#f2d898', '#2fb37a'];
+  let out = '';
+  for (let i = 0; i < n; i++) {
+    out += `<div class="confetti" style="left:${area.x + rnd() * area.w}px;top:${area.y + rnd() * area.h}px;background:${colors[i % colors.length]};transform:rotate(${rnd() * 180}deg);opacity:${0.6 + rnd() * 0.4}"></div>`;
+  }
+  return out;
+}
+
+function phone(inner) { return `<div class="phone">${inner}</div>`; }
+function frame(num, caption, inner) { return `<div class="frame">${phone(inner)}<div class="caption"><b>${num}</b>${caption}</div></div>`; }
+function page(title, kicker, body) {
+  return `<section class="page"><div class="page-head"><h2>${title}</h2><span class="kicker">${kicker}</span></div>${body}</section>`;
+}
+
+const ARC_TOP = 'Sweep pays 5 antes';
+const ARC_BOTTOM = 'Match the last card — kicker pays double';
+const BAILED = { status: 'bailed', dim: true, tone: 'loss' };
+
+/* ---------------------------------- table states ---------------------------------- */
+
+/** Every in-play frame shares one layout, so stepping through the hand nothing jumps but the parts that change. */
+function playTable(status, house, boxValue, threatOn, duke, gus, badge, handOpt) {
+  return topbar('Bronze Table', 'ANTE 10', status)
+    + table(520, dealerRow(house, 'The House', boxValue, threatOn)
+      + pot(168, 30, 10)
+      + arcText(198, ARC_TOP, ARC_BOTTOM)
+      + seats(duke, gus, 258)
+      + (badge || '')
+      + playerHand(406, handOpt))
+    + bank(640, 820);
+}
+
+const MOVES = `<div class="btn danger"><span class="l">Bail</span><span class="d">get 10 back</span></div>
+  <div class="btn secondary"><span class="l">Forge</span><span class="d">pay 10 · 2 left</span></div>`;
+
+function sKicker() {
+  return playTable('Pick your kicker', [], 'waiting', 0, { status: 'picking…', tone: 'gold' }, { status: 'ready' }, '',
+      { 2: { pick: true, lift: 22, star: true } })
+    + `<div class="dock" style="top:688px"><div class="hint">Tap the card you want as your kicker.<br>Match the house's last card to double a win.</div>
+       <div class="btn primary"><span class="l">Lock kicker</span></div></div>`;
+}
+
+function sMove() {
+  return playTable('Your move', ['Ah', 'Jd'], '2 of 5', 2, BAILED, { status: 'holds' }, handBadge(354, '8', 'Pair of Aces'))
+    + `<div class="dock" style="top:688px"><div class="btnrow">${MOVES}</div>
+       <div class="btn primary"><span class="l">Hold</span></div></div>`;
+}
+
+function sPressure() {
+  return playTable('Pressure round', ['Ah', 'Jd', 'Ks'], '3 of 5', 3, BAILED, { status: 'holds' }, handBadge(354, '8', 'Pair of Aces'))
+    + `<div class="dock" style="top:688px"><div class="btnrow">${MOVES}</div>
+       <div class="btnrow"><div class="btn bonus"><span class="l">Pressure</span><span class="d">pay 10 · wins 3:1</span></div>
+         <div class="btn primary"><span class="l">Hold</span></div></div></div>`;
+}
+
+function sAround() {
+  return playTable('Gus is playing', ['Ah', 'Jd', 'Ks', '5d'], '4 of 5', 3, BAILED, { status: 'thinking…', tone: 'gold', x: 226 },
+      handBadge(354, '8', 'Pair of Aces', 'holding'))
+    + `<div class="statusline" style="top:722px">Gus is playing</div>`;
+}
+
+function sShowdown() {
+  return playTable('Showdown', HOUSE, 'Ace high', null, BAILED, { status: 'Pair of 2s', tone: 'loss', x: 236 },
+      handBadge(354, '8', 'Pair of Aces', 'best hand'))
+    + `<div class="statusline" style="top:722px">Showdown…</div>`;
+}
+
+function sheet(opt) {
+  const rows = opt.rows.map(([k, v, cls]) => `<div class="${cls || ''}"><span>${k}</span><b>${v}</b></div>`).join('');
+  return `<div class="sheet ${opt.lose ? 'lose' : ''}">
+    <div class="hd"><span class="ttl">${opt.title}</span><span class="net">${opt.net}</span></div>
+    <div class="vs">${opt.vs}</div>
+    <div class="ledger">${rows}</div>${opt.award || ''}${opt.others || ''}
+    <div class="btn primary"><span class="l">${opt.cta}</span></div></div>`;
+}
+
+function settledTable(house, houseValue, gus, banner) {
+  const w = 56;
+  return topbar('Bronze Table', 'ANTE 10', 'Hand result')
+    + table(330, dealerRow(house, 'The House', houseValue, null)
+      + (banner ? `<div class="take" style="top:142px;z-index:40">${banner}</div>` : '')
+      + seats(BAILED, gus, 178)
+      + fan(PLAYER, 195, 232, w, 34, { tilt: 5, drop: 4, each: { 2: { star: true } } }));
+}
+
+function sSweep() {
+  return settledTable(HOUSE, 'Ace high', { status: 'Pair of 2s', tone: 'loss', x: 236 }, 'YOU TAKE +80')
+    + confetti(7, 34, { x: 20, y: 120, w: 350, h: 300 })
+    + `<div class="scrim"></div>`
+    + sheet({
+      title: 'You sweep the table', net: '+80', vs: 'PAIR OF ACES · HOUSE ACE HIGH',
+      rows: [['You put in', '20'], ['Table pot', '+30', 'g'], ['vs the house', '+20', 'g'], ['Sweep bonus', '+50', 'g'], ['Bankroll', '900', 'tot']],
+      award: `<div class="award"><div class="m">★</div><div><div class="t">Sweep: yours</div><div class="s">BEAT TABLE + HOUSE</div></div><div class="v">+50</div></div>`,
+      others: `<div class="others"><span>Duke bailed <b>−10</b></span><span>Gus lost <b>−10</b></span></div>`,
+      cta: 'Next hand',
+    });
+}
+
+function sStrike() {
+  return settledTable(['Ah', 'Jd', 'Ks', '5d', '8c'], 'Ace high', { status: 'Two pair', tone: 'mint', x: 248, cards: ['Qc', 'Qd', '7s', '7d', '2c'] }, 'KICKER STRIKE ×2')
+    + confetti(21, 22, { x: 30, y: 120, w: 330, h: 300 })
+    + `<div class="scrim"></div>`
+    + sheet({
+      title: 'Kicker strike', net: '+30', vs: 'YOUR KICKER 8 · HOUSE LAST CARD 8',
+      rows: [['You put in', '20'], ['vs the house ×2', '+30', 'g'], ['Table pot (Gus wins)', '0', 'r'], ['Streak bonus', '+20', 'g'], ['Bankroll', '850', 'tot']],
+      award: `<div class="award"><div class="m">3</div><div><div class="t">3-win streak</div><div class="s">ON THE HOUSE</div></div><div class="v">+20</div></div>`,
+      cta: 'Next hand',
+    });
+}
+
+function sLose() {
+  return settledTable(['Jd', 'Jh', '5d', '5c', 'Ks'], 'Two pair', { status: 'Three 2s', tone: 'mint', x: 244, cards: ['2s', '2c', '2h', '7d', '6c'] })
+    + `<div class="scrim"></div>`
+    + sheet({
+      lose: true, title: 'The house takes it', net: '−20', vs: 'PAIR OF ACES · HOUSE TWO PAIR',
+      rows: [['You put in', '20'], ['Table pot (Gus wins)', '0', 'r'], ['vs the house', '0', 'r'], ['Bankroll', '35', 'tot']],
+      others: `<div class="others"><span>Not enough for a full hand at this table</span></div>`,
+      cta: 'Re-up +500',
+    });
+}
+
+/* ---------------------------------- home ---------------------------------- */
+
+function sHome() {
+  const tiers = [['Copper', 5], ['Bronze', 10], ['Gold', 25]];
+  const tierCards = tiers.map(([n, a]) => `<div style="flex:1;border-radius:14px;padding:10px 6px;text-align:center;min-height:74px;
+      border:${a === 10 ? '2px solid var(--gold)' : '1px solid rgba(255,255,255,.14)'};background:${a === 10 ? 'rgba(70,48,16,.7)' : 'rgba(0,0,0,.22)'}">
+      <div style="font-family:var(--serif);font-style:italic;font-weight:600;font-size:22px;color:${a === 10 ? 'var(--gold)' : 'var(--cream)'}">${n}</div>
+      <div style="font-family:var(--mono);font-size:14px;color:var(--cream-mute);margin-top:2px">ANTE ${a}</div></div>`).join('');
+  return `<div class="topbar" style="height:96px">${bokeh([[300, 24, 40], [70, 60, 24], [345, 70, 18]])}
+      <div class="tb-title" style="top:14px;font-size:42px">Showdown</div>
+      <div class="tb-sub" style="top:62px">DEALER VS THREE</div></div>
+    <div class="table" style="top:96px;height:340px">
+      <div class="rail" style="height:370px"></div><div class="felt" style="height:356px"></div><div class="feltline" style="height:346px"></div>
+      <img src="../../Assets/Showdown/Resources/Art/dealer-emerald-dress.png" style="position:absolute;left:50%;transform:translateX(-50%);top:10px;height:214px;z-index:3">
+      ${card('Ah', 52, 132, 56, { rot: -12 })}${card('Ks', 96, 142, 56, { rot: -4, z: 2 })}
+      ${card('8d', 238, 142, 56, { rot: 4, z: 2, star: true })}${card('Ac', 282, 132, 56, { rot: 12 })}
+      <svg class="arc" width="390" height="120" style="top:232px" viewBox="0 0 390 120"><defs><path id="harc" d="M 30 16 Q 195 66 360 16"/></defs>
+        <text font-family="Cormorant Garamond" font-style="italic" font-size="20" font-weight="500" fill="rgba(244,230,200,.82)">
+        <textPath href="#harc" startOffset="50%" text-anchor="middle">Beat the house's climb, and the whole table</textPath></text></svg></div>
+    <div style="position:absolute;left:16px;right:16px;top:462px">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div><div style="font-family:var(--sc);font-size:17px;letter-spacing:2.5px;color:var(--cream-mute)">Bankroll</div>
+          <div style="display:flex;align-items:center;gap:10px;margin-top:2px"><div class="chipdot" style="--c:#1e8449;width:34px;height:34px"></div>
+          <span style="font-family:var(--mono);font-weight:500;font-size:40px;color:var(--gold)">820</span></div></div>
+        <div class="btn bonus" style="min-height:58px;padding:0 18px"><span class="l" style="font-size:17px">Daily bonus</span><span class="d">+250</span></div></div>
+      <div style="font-family:var(--sc);font-size:17px;letter-spacing:2.5px;color:var(--cream-mute);margin-top:18px">Choose your table</div>
+      <div style="display:flex;gap:8px;margin-top:8px">${tierCards}</div>
+      <div class="btn primary" style="margin-top:18px;min-height:62px"><span class="l" style="font-size:22px">Take a seat</span></div>
+      <div class="btnrow" style="margin-top:10px">
+        <div class="btn secondary" style="min-height:56px"><span class="l" style="font-size:17px">Your record</span></div>
+        <div class="btn secondary" style="min-height:56px"><span class="l" style="font-size:17px">How to play</span></div>
+        <div class="btn secondary" style="min-height:56px"><span class="l" style="font-size:17px">Settings</span></div></div></div>`;
+}
+
+/* ---------------------------------- pages ---------------------------------- */
+
+function swatch(color, name, hex) {
+  return `<div class="sw"><i style="background:${color}"></i><b>${name}</b><span>${hex}</span></div>`;
+}
+
+const cover = page('Showdown — Walnut &amp; Felt', 'Design proposal · Oct 2026',
+  `<div class="row" style="gap:40px">
+     <div class="frame">${phone(sMove())}</div>
+     <div style="flex:1;display:flex;flex-direction:column;gap:18px">
+       <div class="board"><h3>The brief</h3>
+         <p style="font-size:19px">Give the current game the look of the reference mock-ups: a lamp-lit walnut room, a deep felt table
+         with a wood rail, serif table names, mono numbers and gold calls to action. <b style="color:#fff">The rules stay exactly as they are</b>:
+         five-card hands, kicker, forge, bail, pressure, the house's five-card climb, Duke and Gus.</p></div>
+       <div class="row" style="gap:18px">
+         <div class="board" style="flex:1"><h3>Taken from the reference</h3><ul>
+           <li><b>Walnut top bar</b>: back, table name in italic serif, ante in mono, rules and menu.</li>
+           <li><b>Gold status chip</b> under the title: whose turn it is.</li>
+           <li><b>A real table</b>: chip tray, shoe, ante placard, curved rules lettering, wood rail at the near edge.</li>
+           <li><b>Seat labels</b> beside every player's cards, naming their move.</li>
+           <li><b>Big hand badge</b> on your own hand.</li>
+           <li><b>Result sheet</b>: line-by-line ledger, the bots' outcomes, one gold button.</li></ul></div>
+         <div class="board" style="flex:1"><h3>Kept from today</h3><ul>
+           <li><b>Readable at arm's length</b>: nothing under 14&nbsp;dp, body 17&ndash;19&nbsp;dp. The reference runs smaller; we don't.</li>
+           <li><b>Touch targets 54&nbsp;dp+</b>: Bail, Forge and Hold stay on screen as real buttons.</li>
+           <li><b>Both prizes always visible</b>: table pot and vs-house share one pill.</li>
+           <li><b>Every button says where the chips go</b>: "get 10 back", "pay 10 · 2 left".</li>
+           <li><b>No real-money cues</b>: plain chip counts, no $ signs.</li></ul></div></div>
+       <div class="board"><h3>Palette</h3><div class="row" style="gap:12px;flex-wrap:wrap">
+         ${swatch('linear-gradient(#3d2617,#24140b)', 'Walnut', '#3D2617')}
+         ${swatch('linear-gradient(#8a5632,#4a2814)', 'Rail', '#8A5632')}
+         ${swatch('radial-gradient(#2f8a5a,#145236)', 'Felt', '#1F6E47')}
+         ${swatch('#170d08', 'Floor', '#170D08')}
+         ${swatch('linear-gradient(#f2d898,#d7ae5e)', 'Gold', '#E6C57E')}
+         ${swatch('#f4e6c8', 'Cream', '#F4E6C8')}
+         ${swatch('#8fe3c0', 'Mint', '#8FE3C0')}
+         ${swatch('#0c1914', 'Sheet', '#0C1914')}
+         ${swatch('#3b1517', 'Bail', '#3B1517')}
+         ${swatch('#c4303b', 'Card red', '#C4303B')}</div></div>
+       <div class="board"><h3>Type</h3><div class="row" style="gap:34px;align-items:baseline;flex-wrap:wrap">
+         <div><div style="font-family:var(--serif);font-style:italic;font-weight:600;font-size:36px">Bronze Table</div><div class="caption">Cormorant Garamond Italic · titles</div></div>
+         <div><div style="font-family:var(--sc);font-weight:600;font-size:24px;letter-spacing:3px">Sweep pays 5 antes</div><div class="caption">Cormorant SC · felt lettering</div></div>
+         <div><div style="font-family:var(--mono);font-weight:500;font-size:28px;color:var(--gold)">820 · +80</div><div class="caption">DM Mono · every number</div></div>
+         <div><div style="font-weight:800;font-size:26px">Pair of Aces</div><div class="caption">Manrope · labels, buttons</div></div></div></div>
+     </div></div>`);
+
+const flowA = page('At the table', 'One hand, start to finish · 1 of 2',
+  `<div class="row">${frame('01', 'Pick your kicker', sKicker())}
+   ${frame('02', 'Your move: Bail, Forge, Hold', sMove())}
+   ${frame('03', 'Pressure round: buttons go 2 × 2', sPressure())}
+   ${frame('04', 'Bots acting: chip + status line', sAround())}</div>`);
+
+const flowB = page('Showdown and results', 'One hand, start to finish · 2 of 2',
+  `<div class="row">${frame('05', 'Showdown: every hand named', sShowdown())}
+   ${frame('06', 'Sweep: ledger + award card', sSweep())}
+   ${frame('07', 'Kicker strike + streak bonus', sStrike())}
+   ${frame('08', 'Losing hand, bankroll empty: Re-up', sLose())}</div>`);
+
+const spec = page('Home and the parts list', 'Components · implementation notes',
+  `<div class="row" style="gap:32px">${frame('09', 'Home: tables named by stake', sHome())}
+   <div style="flex:1;display:flex;flex-direction:column;gap:14px">
+     <div class="row" style="gap:14px">
+       <div class="board" style="flex:1"><h3>Seat labels</h3>
+         <div class="spec" style="height:82px">${seatPill(0, 0, 'Gus', 'holds')}${seatPill(130, 0, 'Gus', 'thinking…', 'gold')}${seatPill(0, 44, 'Duke', 'bailed', 'loss')}${seatPill(130, 44, 'Gus', '+20', 'mint')}</div></div>
+       <div class="board" style="flex:1.1"><h3>Hand badge, threat</h3>
+         <div class="spec" style="height:82px">${handBadge(0, '8', 'Pair of Aces').replace('left:50%;transform:translateX(-50%)', 'left:0')}${threat(0, 62, 3)}</div></div>
+       <div class="board" style="flex:1.2"><h3>Pot, status, cards</h3>
+         <div class="spec" style="height:82px">${pot(0, 30, 10).replace('left:50%;transform:translateX(-50%)', 'left:0')}
+           <div class="chip-status" style="left:0;transform:none;top:50px">Your move</div></div></div></div>
+     <div class="row" style="gap:14px">
+       <div class="board" style="flex:1.4"><h3>Buttons</h3>
+         <div class="btnrow"><div class="btn primary"><span class="l">Hold</span></div>
+           <div class="btn danger"><span class="l">Bail</span><span class="d">get 10 back</span></div>
+           <div class="btn secondary"><span class="l">Forge</span><span class="d">pay 10 · 2 left</span></div>
+           <div class="btn bonus"><span class="l">Pressure</span><span class="d">pay 10 · 3:1</span></div></div></div>
+       <div class="board" style="flex:1"><h3>Cards</h3>
+         <div class="spec" style="height:66px">${card('Ah', 0, 6, 40)}${card('Qs', 48, 6, 40)}${card('8d', 96, 6, 40, { star: true })}${card('', 150, 6, 40, { back: true })}${card('Kd', 198, 6, 40, { dim: true, x: true })}</div></div></div>
+     <div class="board"><h3>Where today's screen maps</h3><table class="map">
+       <tr><td>Green header: Home · Ante · ? · Menu</td><td>Walnut top bar: back, table name and ante, ? and menu; gold status chip below</td></tr>
+       <tr><td>"THE HOUSE", dealer portrait, 5 slots</td><td>House cards at the top of the felt with dashed empty slots, a House box beside them, threat meter below; the portrait moves to Home</td></tr>
+       <tr><td>Duke / Gus panels</td><td>Seat labels and small fanned cards on the left and right of the arc, each with a bet ring</td></tr>
+       <tr><td>TABLE POT / VS THE HOUSE</td><td>One pot pill on the felt, mono numbers in gold</td></tr>
+       <tr><td>Rank pill under your cards</td><td>Gold hand badge above your cards; its disc shows your kicker</td></tr>
+       <tr><td>Result flash, streak toast, Next Hand</td><td>Bottom result sheet: net, ledger, award card, bots' outcomes, gold button</td></tr>
+       <tr><td>Ante 5 / 10 / 25 segment</td><td>Copper / Bronze / Gold tables: new names, same antes</td></tr></table></div>
+     <div class="board"><h3>Building it in Unity</h3><ul>
+       <li><b>Fonts</b>: bundle Cormorant Garamond, Cormorant SC, DM Mono and Manrope (all SIL OFL) beside Noto Sans in <code>Resources/Fonts</code>. Suits stay drawn shapes.</li>
+       <li><b>Felt and rail</b>: <code>TableScreen.BuildRail/BuildFelt</code> gain a curved near edge; curved lettering is a baked texture.</li>
+       <li><b>New parts</b>: TopBar restyle, <code>SeatLabel</code>, <code>PotPill</code>, <code>HandBadge</code>, <code>ResultSheet</code>, tray and shoe decor. Rules, controller and tests are untouched.</li></ul></div>
+   </div></div>`);
+
+document.getElementById('root').innerHTML = cover + flowA + flowB + spec;
+</script>
+</body>
+</html>

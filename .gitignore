@@ -54,3 +54,43 @@ store/aso/.play-operation.lock
 
 # python bytecode
 __pycache__/
+
+# ---- Unity ----
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Bb]uild/
+/[Bb]uilds/
+/[Ll]ogs/
+/[Uu]ser[Ss]ettings/
+/artifacts/
+/.vs/
+/.idea/
+*.csproj
+*.sln
+*.slnx
+*.pidb.meta
+*.pdb.meta
+*.mdb.meta
+mono_crash.*
+sysinfo.txt
+*.apk
+*.aab
+*.unitypackage
+*.app
+/tests/**/bin/
+/tests/**/obj/
+
+/tests/Check/.dotnet/
+/tests/Check/out/
+/tests/Check/bin/
+/tests/Check/obj/
+
+# keep the hand-written test/check projects
+!/tests/Domain/DomainTests.csproj
+!/tests/Game/GameTests.csproj
+!/tests/Check/Runtime.Check.csproj
+!/tests/Check/*.csproj
+
+# Android native build cache
+/.utmp/

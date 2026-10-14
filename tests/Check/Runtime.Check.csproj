@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Showdown.Runtime against Unity's engine assemblies, referencing Domain as a separate assembly like the asmdef does. -->
+  <Import Project="Check.Common.props" />
+  <PropertyGroup>
+    <DefineConstants>UNITY_2022_1_OR_NEWER;UNITY_6000_0_OR_NEWER</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(RepoRoot)Assets/Showdown/Runtime/**/*.cs" />
+    <ProjectReference Include="Domain.Check.csproj" />
+    <Reference Include="$(UnityEngineManaged)/*.dll">
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+</Project>

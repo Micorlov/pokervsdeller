@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Showdown.Editor: Editor-only code against UnityEditor plus the two runtime assemblies. -->
+  <Import Project="Check.Common.props" />
+  <PropertyGroup>
+    <DefineConstants>UNITY_2022_1_OR_NEWER;UNITY_6000_0_OR_NEWER;UNITY_EDITOR</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(RepoRoot)Assets/Showdown/Editor/**/*.cs" />
+    <ProjectReference Include="Domain.Check.csproj" />
+    <ProjectReference Include="Runtime.Check.csproj" />
+    <Reference Include="$(UnityEngineManaged)/*.dll">
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="$(UnityEditorManaged)/UnityEditor.*.dll">
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="$(AndroidExt)">
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+</Project>

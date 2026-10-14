@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Showdown.Domain: pure C#, deliberately given NO Unity references (noEngineReferences). -->
+  <Import Project="Check.Common.props" />
+  <ItemGroup>
+    <Compile Include="$(RepoRoot)Assets/Showdown/Domain/**/*.cs" />
+  </ItemGroup>
+</Project>

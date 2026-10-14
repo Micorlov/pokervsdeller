@@ -1,0 +1,5 @@
+<linker>
+  <!-- JSON (de)serialisation reaches these types by reflection; stripping must not remove their members. -->
+  <assembly fullname="Showdown.Domain" preserve="all" />
+  <assembly fullname="Showdown.Runtime" preserve="all" />
+</linker>

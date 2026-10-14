@@ -1,0 +1,19 @@
+<Project>
+  <!-- Shared settings for the compile-only checks that mirror Unity's assembly layout. -->
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <OutputType>Library</OutputType>
+    <LangVersion>9.0</LangVersion>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <!-- CS0436: our internal IsExternalInit polyfill shadows the real one on net8; Unity's profile has none. -->
+    <NoWarn>CS1591;CS0649;CS0414;CS0436;NU1701</NoWarn>
+    <UnityEngineManaged>/Applications/Unity/Hub/Editor/6000.5.8f1/Unity.app/Contents/Resources/Scripting/Managed/UnityEngine</UnityEngineManaged>
+    <UnityEditorManaged>/Applications/Unity/Hub/Editor/6000.5.8f1/Unity.app/Contents/Resources/Scripting/Managed</UnityEditorManaged>
+    <AndroidExt>/Applications/Unity/Hub/Editor/6000.5.8f1/PlaybackEngines/AndroidPlayer/UnityEditor.Android.Extensions.dll</AndroidExt>
+    <RepoRoot>$(MSBuildThisFileDirectory)../../</RepoRoot>
+  </PropertyGroup>
+</Project>
