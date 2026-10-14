@@ -52,11 +52,14 @@ export const SegmentRow = <T,>({
 const styles = StyleSheet.create({
   segmentRow: { gap: spacing.sm },
   segmentTitle: { fontSize: 17, fontWeight: '800', color: colors.text },
-  segmentOptions: { flexDirection: 'row', gap: spacing.sm, flexWrap: 'wrap' },
+  // The pills share the row between them: three short pills hugging the
+  // left edge left most of the panel as dead felt.
+  segmentOptions: { flexDirection: 'row', gap: spacing.sm },
   // The stake picker is the first thing a player touches, and it was the one
   // control in the app sitting under both the 44pt platform floor and the
   // 54pt target the rest of this table is built to.
   segment: {
+    flex: 1,
     minWidth: 72,
     minHeight: MIN_TOUCH_TARGET,
     paddingVertical: spacing.sm,

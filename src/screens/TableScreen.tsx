@@ -251,7 +251,10 @@ const styles = StyleSheet.create({
   // flexGrow lets the felt reach the bottom of the scroller when the climb is
   // short: without it the table stops at its content and the ground shows
   // through as a hard horizontal seam across the middle of the screen.
-  scroll: { paddingHorizontal: spacing.md, paddingBottom: spacing.sm, flexGrow: 1 },
+  // No bottom padding here: it sat below the felt and let a strip of the
+  // lighter app background show through as a seam above the pots dock. The
+  // breathing room lives inside the table content instead.
+  scroll: { paddingHorizontal: spacing.md, flexGrow: 1 },
 
   table: { position: 'relative', flex: 1 },
   // Both layers bleed past the column and round only their top corners: what
@@ -301,7 +304,7 @@ const styles = StyleSheet.create({
       },
     ],
   },
-  tableContent: { gap: spacing.sm, paddingTop: spacing.sm, paddingBottom: spacing.xs },
+  tableContent: { gap: spacing.sm, paddingTop: spacing.sm, paddingBottom: spacing.md },
 
   seatRow: { flexDirection: 'row', gap: spacing.sm },
 

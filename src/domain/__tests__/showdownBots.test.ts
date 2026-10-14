@@ -107,6 +107,15 @@ describe('decideShowdownMove', () => {
     }
   });
 
+  it('never has Duke bail a pair against the dealer’s visible pair', () => {
+    const seat = seatOf('Kc Kd 7h 4s 2c');
+    const dealer = hand('9c 9d');
+    for (let seed = 1; seed <= 200; seed += 1) {
+      const move = decideShowdownMove(seat, dealer, 2, ANTE, persona('duke'), mulberry32(seed));
+      expect(move.kind).not.toBe('bail');
+    }
+  });
+
   it('has Duke bailing a beaten hand more often than Gus', () => {
     const seat = seatOf('Kc 8d 5h 4s 2c');
     const dealer = hand('9c 9d');

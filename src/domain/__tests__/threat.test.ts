@@ -1,6 +1,6 @@
 import { Card, Suit, cardId } from '../cards';
 import { CATEGORY_ORDER, evaluateHand } from '../handRank';
-import { handStrengthScore, partialThreat } from '../threat';
+import { MADE_PAIR, handStrengthScore, partialThreat } from '../threat';
 
 const SUIT_OF: Record<string, Suit> = { s: 'spades', h: 'hearts', d: 'diamonds', c: 'clubs' };
 const RANK_OF: Record<string, number> = { T: 10, J: 11, Q: 12, K: 13, A: 14 };
@@ -72,6 +72,11 @@ describe('handStrengthScore', () => {
       expect(orders[i]).toBeGreaterThan(orders[i - 1]);
       expect(scores[i]).toBeGreaterThan(scores[i - 1]);
     }
+  });
+
+  it('never scores a finished pair below the weight a visible pair carries', () => {
+    const finishedPair = handStrengthScore(evaluateHand(hand('Kc Kd 9h 5s 2c')));
+    expect(finishedPair).toBeGreaterThanOrEqual(MADE_PAIR);
   });
 
   it('separates hands in the same category by their lead tiebreak', () => {

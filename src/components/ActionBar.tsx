@@ -60,13 +60,12 @@ export const ActionBar: React.FC<ActionBarProps> = ({
     <View style={styles.bar}>
       {pressureAvailable ? (
         <PubButton
-          label={
-            pressureArmed
-              ? 'Pressure armed · wins pay 3:1'
-              : `Pressure the house · pay ${ante}, wins pay 3:1`
-          }
+          label={pressureArmed ? 'Pressure armed' : 'Pressure the house'}
+          detail={pressureArmed ? 'wins pay 3:1 · tap to undo' : `pay ${ante} · wins pay 3:1`}
           onPress={() => onTogglePressure(!pressureArmed)}
-          variant="secondary"
+          // Armed lights up gold — the theme's selection colour — so the raised
+          // stake is visible at a glance, not only in the wording.
+          variant={pressureArmed ? 'bonus' : 'secondary'}
           cue={null}
         />
       ) : null}
@@ -75,7 +74,8 @@ export const ActionBar: React.FC<ActionBarProps> = ({
       <View style={styles.row}>
         <View style={styles.button}>
           <PubButton
-            label={`Bail · get ${bailRefund} back`}
+            label="Bail"
+            detail={`get ${bailRefund} back`}
             onPress={onBail}
             variant="danger"
             cue={null}
@@ -83,7 +83,8 @@ export const ActionBar: React.FC<ActionBarProps> = ({
         </View>
         <View style={styles.button}>
           <PubButton
-            label={`Forge · pay ${ante} · ${forgesLeft} left`}
+            label="Forge"
+            detail={`pay ${ante} · ${forgesLeft} left`}
             onPress={onBeginForge}
             variant="secondary"
             disabled={!canForge}

@@ -1,5 +1,5 @@
 import { ACE, Card } from './cards';
-import { CATEGORY_ORDER, HAND_SIZE, HandRank, evaluateHand } from './handRank';
+import { CATEGORY_ORDER, HAND_SIZE, HandCategory, HandRank, evaluateHand } from './handRank';
 
 /**
  * How scary a hand looks before it is finished.
@@ -17,7 +17,29 @@ const clamp01 = (value: number): number => Math.min(1, Math.max(0, value));
 const MADE_QUADS = 0.85;
 const MADE_TRIPS = 0.6;
 const MADE_TWO_PAIR = 0.45;
-const MADE_PAIR = 0.3;
+export const MADE_PAIR = 0.3;
+
+/**
+ * A finished hand's base weight by category. The visible climb weights made
+ * pairs, two pair, trips and quads above, and these bases continue that same
+ * scale, so a pair reads the same on the table whether its last card has
+ * landed or not. Each base sits far enough above the one below that the lead
+ * tiebreak (at most LEAD_WEIGHT) can never reorder two categories.
+ */
+const CATEGORY_BASE: Record<HandCategory, number> = {
+  highCard: 0,
+  pair: MADE_PAIR,
+  twoPair: MADE_TWO_PAIR,
+  trips: MADE_TRIPS,
+  straight: 0.7,
+  flush: 0.75,
+  fullHouse: 0.8,
+  quads: MADE_QUADS,
+  straightFlush: 0.92,
+  royalFlush: 0.97,
+};
+/** How far the lead rank can lift a finished hand within its category. */
+const LEAD_WEIGHT = 0.04;
 
 /** High-card menace: an ace showing is worth this much on its own. */
 const HIGH_CARD_WEIGHT = 0.15;
@@ -63,9 +85,8 @@ const drawComponent = (cards: readonly Card[]): number => {
  * `compareHands` across categories and with the leading tiebreak inside one.
  */
 export const handStrengthScore = (rank: HandRank): number => {
-  const category = CATEGORY_ORDER[rank.category] / 10;
-  const lead = (rank.tiebreak[0] ?? 0) / ACE / 10;
-  return clamp01(category + lead);
+  const lead = (rank.tiebreak[0] ?? 0) / ACE;
+  return clamp01(CATEGORY_BASE[rank.category] + lead * LEAD_WEIGHT);
 };
 
 /**

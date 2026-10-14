@@ -1,6 +1,7 @@
 import React from 'react';
 import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { DealerPortrait } from '../components/DealerPortrait';
+import { PokerChip } from '../components/PokerChip';
 import { PubButton } from '../components/PubButton';
 import { SegmentRow } from '../components/SegmentRow';
 import { ANTE_OPTIONS, Ante, RE_UP_AMOUNT, canPlay } from '../domain/bankroll';
@@ -64,7 +65,13 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         <Reveal index={1} style={styles.panelWrap}>
           <View style={styles.panel}>
             <Text style={styles.panelLabel}>Bankroll</Text>
-            <Text style={[styles.bankroll, tabularNums]}>{displayBankroll}</Text>
+            <View style={styles.bankrollRow}>
+              {/* Decoration: the chip echoes the chosen stake; the number is what gets read. */}
+              <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+                <PokerChip value={ante} size={40} />
+              </View>
+              <Text style={[styles.bankroll, tabularNums]}>{displayBankroll}</Text>
+            </View>
             {isBusted ? (
               <Text style={styles.bustNote}>Not enough to cover a full hand — re-up on the house.</Text>
             ) : null}
@@ -73,7 +80,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                 <PubButton
                   label={`Daily bonus +${DAILY_BONUS_AMOUNT}`}
                   onPress={onClaimDailyBonus}
-                  variant="secondary"
+                  variant="bonus"
                   cue={null}
                 />
               </View>
@@ -127,6 +134,7 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
   },
   panelLabel: { ...typography.label },
+  bankrollRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm + 4 },
   bankroll: { fontSize: 44, fontWeight: '800', letterSpacing: -1.3, color: colors.gold },
   bustNote: { ...typography.caption, color: colors.textMuted },
   bonusButton: { marginTop: spacing.sm },

@@ -26,6 +26,17 @@ const CATEGORY_STRONGEST_FIRST: readonly HandCategory[] = [
   'highCard',
 ];
 
+/**
+ * Badges are laid out in explicit rows of three. A 30% width with wrap left a
+ * tenth of the panel empty down the right edge, so the grid sat off-centre.
+ */
+const BADGES_PER_ROW = 3;
+
+const achievementRows = Array.from(
+  { length: Math.ceil(ACHIEVEMENTS.length / BADGES_PER_ROW) },
+  (_, row) => ACHIEVEMENTS.slice(row * BADGES_PER_ROW, (row + 1) * BADGES_PER_ROW),
+);
+
 const categoryLabel = (category: HandCategory): string => handName({ category, tiebreak: [] });
 
 const signed = (net: number): string => (net > 0 ? `+${net}` : String(net));
@@ -100,23 +111,31 @@ export const StatsScreen: React.FC<StatsScreenProps> = ({ stats, onBack }) => {
           </Text>
         </View>
         <View style={styles.achievementGrid}>
-          {ACHIEVEMENTS.map((achievement) => {
-            const unlocked = unlockedIds.has(achievement.id);
-            return (
-              <View key={achievement.id} style={[styles.badge, !unlocked && styles.badgeLocked]}>
-                <Text style={styles.badgeIcon}>{unlocked ? '🏅' : '🔒'}</Text>
-                {/* A badge is a fixed third of the row, and the longest names
-                    ("Unstoppable") already fill it at the base size — so this
-                    label holds still while the reading copy around it scales. */}
-                <Text
-                  style={[styles.badgeTitle, !unlocked && styles.badgeTitleLocked]}
-                  maxFontSizeMultiplier={1}
-                >
-                  {achievement.title}
-                </Text>
-              </View>
-            );
-          })}
+          {achievementRows.map((row) => (
+            <View key={row[0].id} style={styles.achievementRow}>
+              {row.map((achievement) => {
+                const unlocked = unlockedIds.has(achievement.id);
+                return (
+                  <View key={achievement.id} style={[styles.badge, !unlocked && styles.badgeLocked]}>
+                    <Text style={styles.badgeIcon}>{unlocked ? '🏅' : '🔒'}</Text>
+                    {/* A badge is a fixed third of the row, and the longest names
+                        ("Unstoppable") already fill it at the base size — so this
+                        label holds still while the reading copy around it scales. */}
+                    <Text
+                      style={[styles.badgeTitle, !unlocked && styles.badgeTitleLocked]}
+                      maxFontSizeMultiplier={1}
+                    >
+                      {achievement.title}
+                    </Text>
+                  </View>
+                );
+              })}
+              {/* Pad a short last row so its badges keep the same width as the rest. */}
+              {Array.from({ length: BADGES_PER_ROW - row.length }, (_, index) => (
+                <View key={`spacer-${index}`} style={styles.badgeSpacer} />
+              ))}
+            </View>
+          ))}
         </View>
       </Reveal>
 
@@ -181,9 +200,11 @@ const styles = StyleSheet.create({
   panelLabel: { ...typography.label },
   achievementsHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   achievementCount: { ...typography.label, color: colors.textMuted },
-  achievementGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+  achievementGrid: { gap: spacing.sm },
+  achievementRow: { flexDirection: 'row', gap: spacing.sm },
+  badgeSpacer: { flex: 1 },
   badge: {
-    width: '30%',
+    flex: 1,
     alignItems: 'center',
     gap: 4,
     paddingVertical: spacing.sm,
