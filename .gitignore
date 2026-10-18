@@ -64,6 +64,7 @@ __pycache__/
 /[Ll]ogs/
 /[Uu]ser[Ss]ettings/
 /artifacts/
+/e2e-artifacts/
 /.vs/
 /.idea/
 *.csproj
