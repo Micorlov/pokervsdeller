@@ -7,10 +7,10 @@ const TEST = {
   interstitial: 'ca-app-pub-3940256099942544/1033173712',
 };
 
-// TODO(real-ids): create these units in AdMob (app ~4879710904) and paste them here.
+// Real units from AdMob (REAL_UNITS.md); used only when USE_TEST_ADS is false.
 const REAL = {
-  banner: 'ca-app-pub-2693008307172998/REPLACE_WITH_BANNER_UNIT',
-  interstitial: 'ca-app-pub-2693008307172998/REPLACE_WITH_INTERSTITIAL_UNIT',
+  banner: 'ca-app-pub-2693008307172998/6225628347',
+  interstitial: 'ca-app-pub-2693008307172998/1158948588',
 };
 
 export const AD_UNITS = USE_TEST_ADS ? TEST : REAL;
