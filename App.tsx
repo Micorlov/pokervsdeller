@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Alert, StyleSheet, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { AdBanner } from './src/ads/AdBanner';
+import { initAds, onNaturalBreak } from './src/ads/ads';
 import { PubScreen } from './src/components/PubScreen';
 import { FeedbackProvider } from './src/feedback/FeedbackProvider';
 import { MotionProvider } from './src/motion/MotionContext';
@@ -32,6 +34,10 @@ const AppContent: React.FC<AppContentProps> = ({ settings, onUpdateSettings }) =
   const [screen, setScreen] = useState<ScreenName>('home');
   const table = useShowdownTable();
   const dailyBonus = useDailyBonus();
+
+  useEffect(() => {
+    void initAds();
+  }, []);
 
   const claimDailyBonus = (): void => {
     if (!dailyBonus.canClaim) return;
@@ -115,7 +121,13 @@ const AppContent: React.FC<AppContentProps> = ({ settings, onUpdateSettings }) =
     if (screen === 'table' && table.round) {
       return (
         <TableScreen
-          table={table}
+          table={{
+            ...table,
+            nextHand: () => {
+              onNaturalBreak();
+              table.nextHand();
+            },
+          }}
           onHome={leaveTable}
           onRules={() => setScreen('howToPlay')}
           onMenu={() => setScreen('settings')}
@@ -128,6 +140,7 @@ const AppContent: React.FC<AppContentProps> = ({ settings, onUpdateSettings }) =
   return (
     <PubScreen>
       <ScreenTransition transitionKey={screen}>{content}</ScreenTransition>
+      <AdBanner />
       <StatusBar style="light" />
     </PubScreen>
   );
