@@ -1,5 +1,5 @@
 /** The one place ad unit IDs live. Set USE_TEST_ADS to false only for a store release. */
-export const USE_TEST_ADS = true;
+export const USE_TEST_ADS = false;
 
 // Google's official sample units: safe to load and click on any device.
 const TEST = {
